@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trust-graduation.org/schemas/v1/evidence.schema.json",
+  "title": "Trust Graduation Evidence Event",
+  "type": "object",
+  "required": ["actionClass", "type"],
+  "properties": {
+    "actionClass": { "type": "string" },
+    "type": {
+      "type": "string",
+      "examples": ["approved", "edited_and_accepted", "rejected", "trust_issue", "sent_with_receipt"]
+    },
+    "source": { "type": "string" },
+    "actor": { "type": "string" },
+    "receiptId": { "type": "string" },
+    "outcomeId": { "type": "string" },
+    "editDistance": { "type": "number", "minimum": 0 },
+    "metadata": { "type": "object" },
+    "recordedAt": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}
+

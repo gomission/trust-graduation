@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trust-graduation"
+version = "0.1.0a0"
+description = "Embeddable permission, evidence, and approval protocol for human-gated agent autonomy."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Phenomena Labs Ltd", email = "hello@phenomenalabs.com" }]
+keywords = ["ai-agents", "agent-safety", "approval-gates", "autonomy", "trust-graduation"]
+

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trust-graduation.org/schemas/v1/decision.schema.json",
+  "title": "Trust Graduation Decision",
+  "type": "object",
+  "required": ["protocol", "version", "allowed", "needsApproval", "mode", "autonomyLevel", "tier", "policy", "evidence", "reason"],
+  "properties": {
+    "protocol": { "const": "trust-graduation" },
+    "version": { "type": "string" },
+    "allowed": { "type": "boolean" },
+    "needsApproval": { "type": "boolean" },
+    "mode": { "type": "string" },
+    "autonomyLevel": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "tier": { "type": "string", "enum": ["gated", "supervised", "auto_capped", "review"] },
+    "policy": { "$ref": "action-class.schema.json" },
+    "evidence": { "type": "object" },
+    "reason": { "type": "string" },
+    "packet": { "$ref": "approval-packet.schema.json" }
+  },
+  "additionalProperties": false
+}
+

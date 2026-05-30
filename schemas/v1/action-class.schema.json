@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trust-graduation.org/schemas/v1/action-class.schema.json",
+  "title": "Trust Graduation Action Class",
+  "type": "object",
+  "required": ["actionClass", "riskClass", "minimumLevel", "requiresApproval", "externalSideEffects"],
+  "properties": {
+    "actionClass": { "type": "string", "examples": ["email.send.external", "draft.response"] },
+    "lane": { "type": "string", "enum": ["observe", "prepare", "stage", "act", "ask", "learn", "govern"] },
+    "riskClass": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "minimumLevel": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "requiresApproval": { "type": "boolean" },
+    "receiptRequired": { "type": "boolean" },
+    "externalSideEffects": { "type": "string" },
+    "description": { "type": "string" }
+  },
+  "additionalProperties": false
+}
+

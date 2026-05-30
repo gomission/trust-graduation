@@ -1,0 +1,44 @@
+{
+  "name": "@phenomenalabs/trust-graduation",
+  "version": "0.1.0-alpha.0",
+  "description": "Embeddable permission, evidence, and approval protocol for human-gated agent autonomy.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Phenomena Labs Ltd <hello@phenomenalabs.com> (https://phenomenalabs.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phenomenalabs/trust-graduation.git"
+  },
+  "homepage": "https://trust-graduation.org",
+  "bugs": {
+    "url": "https://github.com/phenomenalabs/trust-graduation/issues"
+  },
+  "keywords": [
+    "ai-agents",
+    "agent-safety",
+    "approval-gates",
+    "autonomy",
+    "evidence-ledger",
+    "trust-graduation"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./schemas/*": "./schemas/*"
+  },
+  "files": [
+    "src/",
+    "schemas/",
+    "docs/",
+    "examples/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "example": "node examples/minimal.js"
+  }
+}
+
