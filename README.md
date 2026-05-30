@@ -1,6 +1,6 @@
 # Trust Graduation
 
-Embeddable permission, evidence, and approval protocol for human-gated agent autonomy.
+Every agent product is rebuilding the permission layer. Trust Graduation is the embeddable standard for human-gated agent autonomy: earned per action class, on real evidence, with a universal approval payload. Embed in six lines. Apache-licensed. Zero dependencies. Used in Mission: https://github.com/phenomenalabs/mission.
 
 Most agent systems ask: what can this agent automate?
 
@@ -26,6 +26,10 @@ else if (decision.needsApproval) await pushApprovalToUser(decision.packet);
 
 External sends, public posts, money movement, legal commitments, and policy changes stay approval-gated by default.
 
+## Embedded By
+
+Early adopters will be listed here.
+
 ## What This Repo Contains
 
 - `src/` — zero-dependency JavaScript reference implementation.
@@ -44,9 +48,12 @@ External sends, public posts, money movement, legal commitments, and policy chan
 
 ## Status
 
-`0.1.0-alpha.0`. The API is intentionally small and will change only when the v1 schemas require it.
+Package status: `0.1.0-alpha.0`.
+
+Schema status: draft `schemas/v1/`.
+
+The schemas describe the protocol shape. The package is the reference implementation. Schemas reach stable `v1.0` after three external implementations or integrations, one public adopter, and no breaking schema changes for 30 days. Package `1.0.0` follows when the JavaScript API matches stable schemas and has CI-covered compatibility tests.
 
 ## License
 
 Apache-2.0.
-

@@ -3,6 +3,7 @@
   "version": "0.1.0-alpha.0",
   "description": "Embeddable permission, evidence, and approval protocol for human-gated agent autonomy.",
   "type": "module",
+  "types": "./src/index.d.ts",
   "license": "Apache-2.0",
   "author": "Phenomena Labs Ltd <hello@phenomenalabs.com> (https://phenomenalabs.com)",
   "repository": {
@@ -33,6 +34,8 @@
     "schemas/",
     "docs/",
     "examples/",
+    "packages/python/README.md",
+    "packages/go/README.md",
     "LICENSE",
     "README.md"
   ],
@@ -41,4 +44,3 @@
     "example": "node examples/minimal.js"
   }
 }
-
