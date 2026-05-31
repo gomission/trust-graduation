@@ -107,4 +107,6 @@ export function policyForActionClass(actionClass: string, policies?: ActionPolic
 export function normalizeActionClass(actionClass?: string): string;
 export function inferRiskClass(actionClass?: string): RiskClass;
 export function inferExternalSideEffect(actionClass?: string): string;
-
+export function createLicenseToken(payload?: Record<string, unknown>): string;
+export function decodeLicenseToken(token?: string): Record<string, unknown>;
+export function licenseAllows(status?: Record<string, unknown>, entitlement?: string): boolean;

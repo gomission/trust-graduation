@@ -4,6 +4,7 @@ import { AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, policyForActionClass } from "
 
 export { buildApprovalPacket } from "./approval.js";
 export { emptyEvidenceSummary, levelFromTier, summarizeEvidence, tierFromEvidence } from "./evidence.js";
+export { createLicenseToken, decodeLicenseToken, licenseAllows } from "./license.js";
 export { AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, inferExternalSideEffect, inferRiskClass, normalizeActionClass, policyForActionClass } from "./policies.js";
 
 export class TrustGraduation {

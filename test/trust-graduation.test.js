@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TrustGraduation, summarizeEvidence } from "../src/index.js";
+import { TrustGraduation, createLicenseToken, decodeLicenseToken, licenseAllows, summarizeEvidence } from "../src/index.js";
 
 const now = () => new Date("2026-05-30T12:00:00.000Z");
 
@@ -78,3 +78,10 @@ test("summarizes evidence objects and arrays", () => {
   assert.equal(summarizeEvidence([{ actionClass: "draft.response", type: "rejected" }], "draft.response").negative, 1);
 });
 
+test("protocol license tokens expose future entitlements without gating local core", () => {
+  const token = createLicenseToken({ subject: "integration-a", features: ["core", "approval-packets"] });
+  const status = decodeLicenseToken(token);
+  assert.equal(status.active, true);
+  assert.equal(licenseAllows(status, "core"), true);
+  assert.equal(licenseAllows(status, "federation"), false);
+});

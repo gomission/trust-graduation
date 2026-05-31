@@ -45,6 +45,7 @@ Early adopters will be listed here.
 - Evidence ledger: approvals, edits, rejections, receipts, outcomes, trust issues, and rollbacks.
 - Autonomy level: the current earned capability for an action class.
 - Approval packet: a standard payload any agent product can render when a human decision is required.
+- License token: a free-stage entitlement token for protocol features such as `core`, `schemas`, `approval-packets`, and future federation.
 
 ## Status
 
