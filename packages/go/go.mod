@@ -1,4 +1,4 @@
-module github.com/phenomenalabs/trust-graduation-go
+module github.com/trust-graduation/protocol-go
 
 go 1.22
 

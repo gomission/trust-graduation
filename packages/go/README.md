@@ -1,6 +1,6 @@
 # Go Module
 
-Module: `github.com/phenomenalabs/trust-graduation-go`.
+Module: `github.com/trust-graduation/protocol-go`.
 
 The Go alpha preserves the JavaScript decision contract for the minimal embed.
 

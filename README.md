@@ -1,6 +1,6 @@
 # Trust Graduation
 
-Every agent product is rebuilding the permission layer. Trust Graduation is the embeddable standard for human-gated agent autonomy: earned per action class, on real evidence, with a universal approval payload. Embed in six lines. Apache-licensed. Zero dependencies. Used in Mission: https://github.com/phenomenalabs/mission.
+Every agent product is rebuilding the permission layer. Trust Graduation is the embeddable standard for human-gated agent autonomy: earned per action class, on real evidence, with a universal approval payload. Embed in six lines. Apache-licensed. Zero dependencies. Reference implementation: Mission by Phenomena Labs Ltd.
 
 Most agent systems ask: what can this agent automate?
 
@@ -9,13 +9,13 @@ Trust Graduation asks: what has this agent earned the right to do for this user,
 ## Install
 
 ```bash
-npm install @phenomenalabs/trust-graduation
+npm install @trust-graduation/core
 ```
 
 ## Six-line Embed
 
 ```js
-import { TrustGraduation } from "@phenomenalabs/trust-graduation";
+import { TrustGraduation } from "@trust-graduation/core";
 
 const tg = new TrustGraduation({ workspace: "user-123", evidence: localLedger });
 const decision = tg.canExecute({ actionClass: "email.send.external", context: { recipient, body } });

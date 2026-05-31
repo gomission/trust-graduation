@@ -9,6 +9,6 @@ description = "Embeddable permission, evidence, and approval protocol for human-
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "Apache-2.0" }
-authors = [{ name = "Phenomena Labs Ltd", email = "hello@phenomenalabs.com" }]
+authors = [{ name = "Phenomena Labs Ltd", email = "missionexecutionlayer@gmail.com" }]
 keywords = ["ai-agents", "agent-safety", "approval-gates", "autonomy", "trust-graduation"]
 
