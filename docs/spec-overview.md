@@ -25,7 +25,10 @@ An agent may execute only what it has earned for this user, in this action class
 
 External sends, public posts, calendar invites, money movement, legal commitments, irreversible changes, and permission changes require human approval unless a separate policy explicitly says otherwise.
 
+## Entitlement Boundary
+
+The reference package includes a free-stage license entitlement payload so protocol features can be gated later without changing the decision contract. Entitlements govern access to protocol capabilities such as `core`, `schemas`, `approval-packets`, `local-evidence`, and future federation. They do not grant autonomy. Only evidence plus policy can do that.
+
 ## Public Promise
 
 Never sends without approval.
-

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trust-graduation.org/schemas/v1/tg-skill.schema.json",
+  "title": "Trust Graduation Skill",
+  "description": "Frontmatter contract for a portable TG-SKILL.md artifact.",
+  "type": "object",
+  "required": ["name", "description", "trust_graduation", "agentskills_compatible"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "examples": ["send-internal-followup"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 12
+    },
+    "version": {
+      "type": "string"
+    },
+    "authors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "agentskills_compatible": {
+      "const": true
+    },
+    "trust_graduation": {
+      "type": "object",
+      "required": ["action_class", "default_trust", "evidence_required", "graduation_path"],
+      "properties": {
+        "action_class": {
+          "type": "string",
+          "examples": ["email.send.internal", "draft.response", "social.post.public"]
+        },
+        "minimum_level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "default_trust": {
+          "type": "string",
+          "enum": [
+            "observe_only",
+            "approval_required_per_event",
+            "approval_required_per_session",
+            "weekly_review",
+            "autonomous_with_receipts"
+          ]
+        },
+        "evidence_required": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "graduation_path": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "observe_only",
+              "approval_required_per_event",
+              "approval_required_per_session",
+              "weekly_review",
+              "autonomous_with_receipts"
+            ]
+          },
+          "minItems": 1
+        },
+        "hard_blocks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "receipt_required": {
+          "type": "boolean"
+        },
+        "approval_packet_template": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

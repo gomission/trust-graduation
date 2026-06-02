@@ -1,8 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { TrustGraduation, createLicenseToken, decodeLicenseToken, licenseAllows, summarizeEvidence } from "../src/index.js";
 
 const now = () => new Date("2026-05-30T12:00:00.000Z");
+const repo = path.resolve(new URL("..", import.meta.url).pathname);
 
 test("allows private drafting after clean supervised evidence", () => {
   const tg = new TrustGraduation({
@@ -84,4 +87,13 @@ test("protocol license tokens expose future entitlements without gating local co
   assert.equal(status.active, true);
   assert.equal(licenseAllows(status, "core"), true);
   assert.equal(licenseAllows(status, "federation"), false);
+});
+
+test("receipts v2 schema is present as forward design", () => {
+  const schema = JSON.parse(fs.readFileSync(path.join(repo, "schemas", "v2", "receipts.schema.json"), "utf8"));
+  assert.equal(schema.properties.protocol.const, "trust-graduation-receipts");
+  assert.ok(schema.required.includes("receiptId"));
+  assert.ok(schema.required.includes("evidence"));
+  assert.equal(schema.properties.evidence.required.includes("target"), true);
+  assert.equal(schema.properties.evidence.required.includes("summary"), true);
 });

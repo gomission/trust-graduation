@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trust-graduation.org/schemas/v2/receipts.schema.json",
+  "title": "Trust Graduation Receipt",
+  "description": "Forward-design schema for a universal receipt: evidence that an agent-mediated action happened, in a format other Trust Graduation agents can audit, learn from, and optionally federate with user consent.",
+  "type": "object",
+  "required": ["protocol", "version", "receiptId", "workspace", "agent", "actionClass", "result", "evidence"],
+  "properties": {
+    "protocol": {
+      "const": "trust-graduation-receipts"
+    },
+    "version": {
+      "type": "string",
+      "examples": ["1.0"]
+    },
+    "receiptId": {
+      "type": "string",
+      "minLength": 1,
+      "examples": ["rcpt_20260531_abc"]
+    },
+    "workspace": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Local or federated workspace/user namespace."
+    },
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Agent, product, or integration that produced the action."
+    },
+    "actionClass": {
+      "type": "string",
+      "minLength": 1,
+      "examples": ["code.commit", "email.send.external", "draft.response"]
+    },
+    "result": {
+      "type": "string",
+      "enum": ["proposed", "completed", "partially_completed", "deferred", "rejected", "failed", "rolled_back"]
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["target", "summary"],
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "Stable reference to what changed, such as commit:abc123, msg:xyz, loop:ol_abc, or file:path."
+        },
+        "summary": {
+          "type": "string"
+        },
+        "approvedBy": {
+          "type": "string"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "humanEditDistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "receiptUri": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "approvalPacketId": {
+          "type": "string"
+        },
+        "openLoopId": {
+          "type": "string"
+        },
+        "outcomeId": {
+          "type": "string"
+        },
+        "ruleEvidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "relatedReceipts": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "federation": {
+      "type": "object",
+      "description": "Optional consent and sharing metadata for hosted or cross-product receipt stores.",
+      "properties": {
+        "shareable": { "type": "boolean" },
+        "consentId": { "type": "string" },
+        "redaction": {
+          "type": "string",
+          "enum": ["none", "summary_only", "metadata_only", "private"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

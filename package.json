@@ -41,6 +41,8 @@
   ],
   "scripts": {
     "test": "node --test",
-    "example": "node examples/minimal.js"
+    "example": "node examples/minimal.js",
+    "docs:pdf": "python3 scripts/generate-protocol-pdf.py",
+    "docs:update": "node scripts/update-protocol-docs.mjs"
   }
 }

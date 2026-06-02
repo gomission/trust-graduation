@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trust-graduation.org/schemas/v1/license-token.schema.json",
+  "title": "Trust Graduation License Entitlement",
+  "type": "object",
+  "required": ["version", "issuer", "subject", "product", "plan", "features", "modules"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "issuer": { "type": "string", "minLength": 1 },
+    "subject": { "type": "string", "minLength": 1 },
+    "product": { "type": "string", "minLength": 1 },
+    "plan": { "type": "string", "minLength": 1 },
+    "features": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "modules": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "expires_at": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "const": "" }
+      ]
+    },
+    "metadata": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": false
+}

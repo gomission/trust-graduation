@@ -10,6 +10,7 @@ Goal: a public spec and package any agent vendor can embed in less than 100 line
 - Publish the npm package first.
 - Keep Python and Go ports API-compatible with the JavaScript decision contract.
 - Publish schemas under `/schemas/v1/`.
+- Keep license entitlement tokens free-local by default; use them to prove the future monetization boundary without blocking adoption.
 - Use the Manifesto as launch positioning, not as a substitute for an embeddable package.
 
 ## Phase 2: Seed Adoption
@@ -49,3 +50,4 @@ Potential protocol-side revenue:
 
 The first monetization gate is not pricing. It is external adoption.
 
+In alpha, entitlement tokens should stay permissive. The purpose is to make future hosted federation, compliance packs, and enterprise support attach cleanly to protocol features after adoption, not to add friction before the standard has citations.

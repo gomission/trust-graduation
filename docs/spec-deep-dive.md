@@ -4,7 +4,7 @@ Status: alpha draft
 
 ## Artifacts
 
-Trust Graduation 1.0 defines four portable payloads:
+Trust Graduation 1.0 defines four core autonomy payloads:
 
 - Action class policy
 - Evidence event
@@ -12,6 +12,8 @@ Trust Graduation 1.0 defines four portable payloads:
 - Approval packet
 
 Schemas live in `schemas/v1/`.
+
+The reference implementation also defines a license entitlement payload. It is not an autonomy payload and cannot make an action executable; it only gates product/protocol capabilities such as package features, schema access, approval-packet rendering, local evidence helpers, and future federation.
 
 ## Evidence Tiers
 
@@ -41,3 +43,18 @@ The reference implementation maps evidence into four tiers:
 
 Federated evidence is not implemented in this alpha package. The package is designed so an optional hosted federation layer can provide the same evidence array from multiple products with user consent.
 
+## License Entitlement Contract
+
+Alpha entitlement tokens use the prefix `tg1` and encode a JSON payload matching `schemas/v1/license-token.schema.json`.
+
+Required fields:
+
+- `version`
+- `issuer`
+- `subject`
+- `product`
+- `plan`
+- `features`
+- `modules`
+
+Default free local protocol features are `core`, `schemas`, `approval-packets`, and `local-evidence`. The entitlement layer is deliberately separate from `canExecute()` so monetization cannot accidentally bypass Trust Graduation.
