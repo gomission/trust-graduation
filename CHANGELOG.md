@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-alpha.1
+
+- Added TG-SKILL.md schema, format documentation, and first portable example skill.
+- Added Hermes-class embedding note for agent runtimes that need a Trust Graduation safety layer.
+- Added receipts forward-design docs, printable protocol PDF generation, and npm/GitHub publishing guide.
+- Published updated protocol docs and schemas as the alpha.1 npm package.
+
 ## 0.1.0-alpha.0
 
 - Initial JavaScript reference implementation.
