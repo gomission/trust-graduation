@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0-alpha.2
+
+- Regenerated the printable protocol PDF and npm package preview after the full Mission documentation refresh.
+- Re-uploaded the alpha package so the public package metadata and protocol packet stay current.
+
 ## 0.1.0-alpha.1
 
 - Added TG-SKILL.md schema, format documentation, and first portable example skill.
