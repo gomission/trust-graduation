@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0-alpha.3
+
+- Correct npm metadata to point at the current public GitHub repository.
+- Regenerate the printable protocol PDF.
+
 ## 0.1.0-alpha.2
 
 - Regenerated the printable protocol PDF and npm package preview after the full Mission documentation refresh.
