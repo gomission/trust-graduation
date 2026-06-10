@@ -23,9 +23,22 @@ export class TrustGraduation {
     const autonomyLevel = levelFromTier(tier);
     const explicitlyApproved = approval?.state === "approved" || context.approvalState === "approved";
     const highRisk = policy.riskClass === "high" || policy.riskClass === "critical" || policy.externalSideEffects !== "none";
+    const createdAt = this.now().toISOString();
+    const decisionId = `tgd_${createdAt.replace(/[^0-9]/g, "").slice(0, 14)}_${slug(actionClass)}`;
+    const requestedAction = context.requestedAction && typeof context.requestedAction === "object"
+      ? context.requestedAction
+      : context;
+    const constraints = context.constraints && typeof context.constraints === "object"
+      ? context.constraints
+      : {};
 
     if (highRisk && !explicitlyApproved) {
       return decision({
+        decisionId,
+        createdAt,
+        actionClass,
+        requestedAction,
+        constraints,
         allowed: false,
         needsApproval: true,
         mode: "approval_required",
@@ -35,19 +48,31 @@ export class TrustGraduation {
         evidence,
         reason: "External, public, money, legal, or authority-changing actions require explicit human approval.",
         packet: buildApprovalPacket({
+          decisionId,
           workspace: this.workspace,
+          scope: typeof context.scope === "string" ? context.scope : "",
+          principal: typeof context.principal === "string" ? context.principal : "",
           actionClass,
+          requestedAction,
+          constraints,
           context,
           policy,
           evidence,
           reason: "Human approval required before this action can execute.",
-          createdAt: this.now().toISOString()
+          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          createdAt,
+          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
         })
       });
     }
 
     if (highRisk && explicitlyApproved) {
       return decision({
+        decisionId,
+        createdAt,
+        actionClass,
+        requestedAction,
+        constraints,
         allowed: true,
         needsApproval: false,
         mode: "approved_once",
@@ -61,6 +86,11 @@ export class TrustGraduation {
 
     if (tier === "review") {
       return decision({
+        decisionId,
+        createdAt,
+        actionClass,
+        requestedAction,
+        constraints,
         allowed: false,
         needsApproval: true,
         mode: "review_only",
@@ -70,19 +100,31 @@ export class TrustGraduation {
         evidence,
         reason: "Negative evidence, trust issues, or high rejection rate require review before expanding autonomy.",
         packet: buildApprovalPacket({
+          decisionId,
           workspace: this.workspace,
+          scope: typeof context.scope === "string" ? context.scope : "",
+          principal: typeof context.principal === "string" ? context.principal : "",
           actionClass,
+          requestedAction,
+          constraints,
           context,
           policy,
           evidence,
           reason: "Review required because trust evidence regressed.",
-          createdAt: this.now().toISOString()
+          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          createdAt,
+          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
         })
       });
     }
 
     if (policy.requiresApproval && !explicitlyApproved) {
       return decision({
+        decisionId,
+        createdAt,
+        actionClass,
+        requestedAction,
+        constraints,
         allowed: false,
         needsApproval: true,
         mode: "approval_required",
@@ -92,19 +134,31 @@ export class TrustGraduation {
         evidence,
         reason: "This action class requires approval by policy.",
         packet: buildApprovalPacket({
+          decisionId,
           workspace: this.workspace,
+          scope: typeof context.scope === "string" ? context.scope : "",
+          principal: typeof context.principal === "string" ? context.principal : "",
           actionClass,
+          requestedAction,
+          constraints,
           context,
           policy,
           evidence,
           reason: "Policy requires approval for this action class.",
-          createdAt: this.now().toISOString()
+          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          createdAt,
+          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
         })
       });
     }
 
     if (autonomyLevel < policy.minimumLevel) {
       return decision({
+        decisionId,
+        createdAt,
+        actionClass,
+        requestedAction,
+        constraints,
         allowed: false,
         needsApproval: true,
         mode: "insufficient_evidence",
@@ -114,18 +168,30 @@ export class TrustGraduation {
         evidence,
         reason: `Action requires autonomy level ${policy.minimumLevel}; current evidence supports level ${autonomyLevel}.`,
         packet: buildApprovalPacket({
+          decisionId,
           workspace: this.workspace,
+          scope: typeof context.scope === "string" ? context.scope : "",
+          principal: typeof context.principal === "string" ? context.principal : "",
           actionClass,
+          requestedAction,
+          constraints,
           context,
           policy,
           evidence,
           reason: "More evidence is needed before this action class can run without review.",
-          createdAt: this.now().toISOString()
+          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          createdAt,
+          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
         })
       });
     }
 
     return decision({
+      decisionId,
+      createdAt,
+      actionClass,
+      requestedAction,
+      constraints,
       allowed: true,
       needsApproval: false,
       mode: tier === "auto_capped" ? "auto_capped" : tier === "supervised" ? "supervised" : "allowed",
@@ -144,6 +210,14 @@ function decision(fields) {
     version: "1.0",
     ...fields
   };
+}
+
+function slug(value = "") {
+  return String(value || "action")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "action";
 }
 
 export function canExecute(input = {}, options = {}) {

@@ -1,60 +1,280 @@
-# Trust Graduation 1.0 Deep Dive
+# Trust Graduation Protocol v0.1 Deep Dive
 
 Status: alpha draft
+Purpose: define the protocol surface independent of any one product
 
-## Artifacts
+## 1. Scope
 
-Trust Graduation 1.0 defines four core autonomy payloads:
+Trust Graduation is a protocol for bounded agent authority.
 
-- Action class policy
-- Evidence event
-- Decision
-- Approval packet
+It answers a narrower question than general authorization systems:
 
-Schemas live in `schemas/v1/`.
+> Has this agent earned the right to perform this class of action for this principal under the current constraints?
 
-The reference implementation also defines a license entitlement payload. It is not an autonomy payload and cannot make an action executable; it only gates product/protocol capabilities such as package features, schema access, approval-packet rendering, local evidence helpers, and future federation.
+The protocol is intentionally decision-centric. It does not require a specific storage engine, identity provider, user interface, transport, or machine learning model.
 
-## Evidence Tiers
+## 2. Actors
 
-The reference implementation maps evidence into four tiers:
+A conforming implementation should model these roles explicitly even if one product collapses them internally:
 
-| Tier | Rule |
+- `principal`: the person or organization whose trust boundary is being protected
+- `agent`: the software actor proposing or taking action
+- `host`: the product or runtime evaluating Trust Graduation rules
+- `approver`: the human or delegated authority who can approve a bounded action
+- `executor`: the component that performs the side effect once allowed
+- `auditor`: a human or system reviewing receipts, violations, and regressions
+
+## 3. Action Classes
+
+An action class is the smallest portable unit of earned autonomy.
+
+Examples:
+
+- `draft.response`
+- `calendar.propose.internal`
+- `calendar.send.external`
+- `email.send.external`
+- `task.cleanup.local`
+- `policy.change`
+
+Action classes should be:
+
+- stable enough to accumulate evidence over time
+- narrow enough that evidence on one class does not over-grant another
+- legible to users, auditors, and integrators
+
+An implementation may normalize product-specific actions into a shared action-class vocabulary.
+
+## 4. Protocol Objects
+
+### 4.1 `ActionClassPolicy`
+
+Defines the default trust boundary for one action class.
+
+Recommended fields:
+
+- `actionClass`
+- `description`
+- `riskClass`
+- `minimumLevel`
+- `requiresApproval`
+- `receiptRequired`
+- `externalSideEffects`
+- `reversible`
+- `defaultConstraints`
+- `regressionTriggers`
+
+### 4.2 `EvidenceEvent`
+
+Represents one trust-relevant event for one action class.
+
+Required semantic fields:
+
+- `actionClass`
+- `type`
+
+Recommended fields:
+
+- `eventId`
+- `principal`
+- `agent`
+- `source`
+- `recordedAt`
+- `decisionId`
+- `approvalPacketId`
+- `receiptId`
+- `outcomeId`
+- `editDistance`
+- `severity`
+- `metadata`
+
+Canonical event types should include at least:
+
+- `approved`
+- `edited`
+- `rejected`
+- `held`
+- `executed`
+- `receipt_logged`
+- `outcome_positive`
+- `outcome_negative`
+- `trust_issue`
+- `rollback`
+- `policy_exception`
+
+Evidence must come from real interaction, execution, outcome, or repair. More drafts, raw model confidence, or synthetic success claims are not evidence.
+
+### 4.3 `Decision`
+
+Represents the output of evaluating one requested action.
+
+A `Decision` should answer:
+
+- is the action allowed now?
+- is approval required?
+- what mode applies?
+- what trust state was used?
+- what policy justified it?
+- what evidence summary justified it?
+- what approval packet or next step is required?
+
+Recommended fields:
+
+- `decisionId`
+- `requestedAction`
+- `actionClass`
+- `allowed`
+- `needsApproval`
+- `mode`
+- `autonomyLevel`
+- `tier`
+- `policy`
+- `evidence`
+- `constraints`
+- `reason`
+- `packet`
+- `createdAt`
+
+### 4.4 `ApprovalPacket`
+
+A portable payload for bounded human review.
+
+A conforming packet should make the human able to answer:
+
+- what exactly is being asked?
+- why is it gated?
+- what risk class applies?
+- what evidence exists?
+- what can I approve once versus reject or revise?
+- what receipt will exist if this runs?
+
+Recommended fields:
+
+- `packetId`
+- `decisionId`
+- `workspace` or `scope`
+- `requestedBy`
+- `principal`
+- `actionClass`
+- `riskClass`
+- `externalSideEffects`
+- `approvalRequired`
+- `receiptRequired`
+- `reason`
+- `requestedAction`
+- `constraints`
+- `evidence`
+- `decisions`
+- `createdAt`
+- `expiresAt`
+
+### 4.5 `ExecutionReceipt`
+
+The full receipts primitive is still separate, but implementations should already assume the need for a portable execution record.
+
+Minimum expectations:
+
+- a stable `receiptId`
+- linkage to the decision or approval packet
+- summary of what executed
+- time of execution
+- executor identity when available
+- target summary
+- rollback pointer or reason if repaired later
+
+## 5. Evidence Tiers And Autonomy
+
+This reference implementation uses four evidence tiers:
+
+| Tier | Meaning |
 |---|---|
-| gated | Default until evidence is strong enough. |
-| supervised | At least 5 positive events, 3 approvals, no negative evidence, low edit distance. |
-| auto_capped | At least 10 positive events, 6 approvals, no negative evidence, very low edit distance. |
-| review | Any trust issue, repeated rejections, rollback, or high rejection rate. |
+| `gated` | Default state or insufficient evidence |
+| `supervised` | Positive evidence exists, but review boundaries still matter |
+| `auto_capped` | Repeated clean evidence for narrow bounded automation |
+| `review` | Negative evidence or trust regression requires explicit review |
 
-## Decision Contract
+These tiers are implementation guidance, not the entire protocol. A host may use different internals as long as it returns a conforming `Decision` and preserves the core trust boundary.
 
-`canExecute()` returns:
+## 6. Decision Modes
 
-- `allowed`: whether the agent can execute now
-- `needsApproval`: whether a human approval packet is required
-- `mode`: current handling mode
-- `autonomyLevel`: earned level from 0-5
-- `tier`: evidence tier
-- `policy`: action class policy
-- `evidence`: evidence summary
-- `packet`: standard approval payload when needed
+A conforming implementation should use explicit decision modes rather than a single boolean.
 
-## Federation Boundary
+Recommended modes:
 
-Federated evidence is not implemented in this alpha package. The package is designed so an optional hosted federation layer can provide the same evidence array from multiple products with user consent.
+- `allowed`
+- `supervised`
+- `auto_capped`
+- `approval_required`
+- `review_only`
+- `insufficient_evidence`
+- `denied`
+- `approved_once`
 
-## License Entitlement Contract
+This makes the protocol legible to products, logs, and auditors.
 
-Alpha entitlement tokens use the prefix `tg1` and encode a JSON payload matching `schemas/v1/license-token.schema.json`.
+## 7. Constraints
 
-Required fields:
+Trust Graduation is only meaningful if approvals and grants are bounded.
 
-- `version`
-- `issuer`
-- `subject`
-- `product`
-- `plan`
-- `features`
-- `modules`
+Constraints may include:
 
-Default free local protocol features are `core`, `schemas`, `approval-packets`, and `local-evidence`. The entitlement layer is deliberately separate from `canExecute()` so monetization cannot accidentally bypass Trust Graduation.
+- one-time execution
+- allowed recipients or domains
+- amount or consequence caps
+- time limits or expiry
+- required human-visible fields
+- rollback expectation
+- disallowed data sources
+- no execution from untrusted retrieved content alone
+
+A request should never be treated as globally approved just because a similar action was approved before.
+
+## 8. Regression
+
+Trust must be able to move down.
+
+Regression should occur when an action class accumulates events such as:
+
+- trust issues
+- repeated rejections
+- high edit distance after prior confidence
+- rollback events
+- unsupported claims
+- wrong recipient or target selection
+- policy exceptions
+- negative downstream outcomes
+
+A protocol implementation should expose regression visibly through the returned `Decision` or associated audit state.
+
+## 9. Conformance Requirements For v0.1
+
+A v0.1 conforming implementation should:
+
+- evaluate trust per action class, not globally
+- expose a decision artifact, not only UI behavior
+- preserve an evidence model with real event types
+- support bounded approval packets for gated actions
+- keep high-risk external side effects approval-gated by default
+- support regression after negative evidence
+- make execution auditable with a stable identifier or receipt hook
+
+A v0.1 conforming implementation does not need to:
+
+- use cryptographic signatures
+- use decentralized identity
+- use a hosted service
+- share evidence across products
+- use Mission’s exact heuristics or thresholds
+
+## 10. Extensions
+
+The following fit naturally as protocol extensions rather than core requirements:
+
+- signed receipts
+- verifiable identity for principal, agent, and approver
+- delegated actor chains
+- cross-product evidence portability
+- consented federation
+- domain-specific action-class registries
+
+These should layer on top of the core decision contract, not replace it.

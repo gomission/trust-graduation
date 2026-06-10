@@ -1,5 +1,6 @@
 export type RiskClass = "low" | "medium" | "high" | "critical";
 export type EvidenceTier = "gated" | "supervised" | "auto_capped" | "review";
+export type DecisionMode = "allowed" | "supervised" | "auto_capped" | "approval_required" | "review_only" | "insufficient_evidence" | "denied" | "approved_once";
 
 export interface ActionPolicy {
   actionClass: string;
@@ -45,36 +46,53 @@ export interface EvidenceSummary {
   rejectionRate: number;
 }
 
+export interface ApprovalDecisionOption {
+  id: string;
+  label: string;
+  effect: string;
+}
+
 export interface ApprovalPacket {
   protocol: "trust-graduation";
   version: string;
   packetId: string;
-  workspace: string;
-  requestedBy: string;
+  decisionId?: string;
+  workspace?: string;
+  scope?: string;
+  requestedBy?: string;
+  principal?: string;
   actionClass: string;
   riskClass: RiskClass;
   externalSideEffects: string;
   approvalRequired: boolean;
   receiptRequired: boolean;
   reason: string;
+  requestedAction?: Record<string, unknown>;
+  constraints?: Record<string, unknown>;
   context: Record<string, unknown>;
   evidence: EvidenceSummary | Record<string, unknown>;
-  decisions: Array<{ id: string; label: string; effect: string }>;
+  decisions: ApprovalDecisionOption[];
   createdAt: string;
+  expiresAt?: string;
 }
 
 export interface TrustDecision {
   protocol: "trust-graduation";
   version: string;
+  decisionId?: string;
+  actionClass?: string;
+  requestedAction?: Record<string, unknown>;
   allowed: boolean;
   needsApproval: boolean;
-  mode: string;
+  mode: DecisionMode;
   autonomyLevel: number;
   tier: EvidenceTier;
   policy: ActionPolicy;
   evidence: EvidenceSummary;
+  constraints?: Record<string, unknown>;
   reason: string;
   packet?: ApprovalPacket;
+  createdAt?: string;
 }
 
 export interface CanExecuteRequest {

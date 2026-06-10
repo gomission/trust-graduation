@@ -7,16 +7,23 @@
   "properties": {
     "protocol": { "const": "trust-graduation" },
     "version": { "type": "string" },
+    "decisionId": { "type": "string" },
+    "requestedAction": { "type": "object" },
+    "actionClass": { "type": "string" },
     "allowed": { "type": "boolean" },
     "needsApproval": { "type": "boolean" },
-    "mode": { "type": "string" },
+    "mode": {
+      "type": "string",
+      "enum": ["allowed", "supervised", "auto_capped", "approval_required", "review_only", "insufficient_evidence", "denied", "approved_once"]
+    },
     "autonomyLevel": { "type": "integer", "minimum": 0, "maximum": 5 },
     "tier": { "type": "string", "enum": ["gated", "supervised", "auto_capped", "review"] },
     "policy": { "$ref": "action-class.schema.json" },
     "evidence": { "type": "object" },
+    "constraints": { "type": "object" },
     "reason": { "type": "string" },
-    "packet": { "$ref": "approval-packet.schema.json" }
+    "packet": { "$ref": "approval-packet.schema.json" },
+    "createdAt": { "type": "string", "format": "date-time" }
   },
   "additionalProperties": false
 }
-

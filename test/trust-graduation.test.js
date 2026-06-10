@@ -27,6 +27,26 @@ test("allows private drafting after clean supervised evidence", () => {
   assert.equal(result.autonomyLevel, 2);
 });
 
+test("decision emits protocol-facing fields", () => {
+  const tg = new TrustGraduation({ workspace: "user-123", now, evidence: [] });
+  const result = tg.canExecute({
+    actionClass: "draft.response",
+    context: {
+      principal: "user-123",
+      requestedBy: "assistant",
+      requestedAction: { draftType: "reply" },
+      constraints: { scope: "once" }
+    }
+  });
+
+  assert.equal(result.protocol, "trust-graduation");
+  assert.equal(result.actionClass, "draft.response");
+  assert.equal(result.requestedAction?.draftType, "reply");
+  assert.equal(result.constraints?.scope, "once");
+  assert.match(result.decisionId || "", /^tgd_/);
+  assert.equal(result.createdAt, "2026-05-30T12:00:00.000Z");
+});
+
 test("external sends remain approval-gated even with clean evidence", () => {
   const tg = new TrustGraduation({
     workspace: "user-123",
@@ -36,13 +56,22 @@ test("external sends remain approval-gated even with clean evidence", () => {
 
   const result = tg.canExecute({
     actionClass: "email.send.external",
-    context: { recipient: "buyer@example.com" }
+    context: {
+      principal: "user-123",
+      requestedBy: "assistant",
+      recipient: "buyer@example.com",
+      constraints: { scope: "once" }
+    }
   });
 
   assert.equal(result.allowed, false);
   assert.equal(result.needsApproval, true);
-  assert.equal(result.packet.actionClass, "email.send.external");
-  assert.equal(result.packet.workspace, "user-123");
+  assert.equal(result.packet?.actionClass, "email.send.external");
+  assert.equal(result.packet?.workspace, "user-123");
+  assert.equal(result.packet?.decisionId, result.decisionId);
+  assert.equal(result.packet?.principal, "user-123");
+  assert.equal(result.packet?.requestedBy, "assistant");
+  assert.equal(result.packet?.constraints?.scope, "once");
 });
 
 test("explicit approval permits a gated external action once", () => {

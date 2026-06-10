@@ -1,12 +1,16 @@
 # Trust Graduation
 
-Every agent product is rebuilding the permission layer. Trust Graduation is the embeddable standard for human-gated agent autonomy: earned per action class, on real evidence, with a universal approval payload. Embed in six lines. Apache-licensed. Zero dependencies. Reference implementation: Mission by Phenomena Labs Ltd.
+Trust Graduation is an open protocol for bounded agent authority.
 
-Most agent systems ask: what can this agent automate?
+It answers a narrower question than generic agent permissions:
 
-Trust Graduation asks: what has this agent earned the right to do for this user, in this action class, under these constraints?
+> What has this agent earned the right to do for this principal, in this action class, under these constraints?
 
-The long-form thinking is in [MANIFESTO.md](MANIFESTO.md).
+Trust Graduation does not grant global trust. It evaluates one requested action at a time using policy, evidence, approval semantics, and audit hooks.
+
+Apache-licensed. Zero dependencies. Reference implementation: Mission by Phenomena Labs Ltd.
+
+The long-form thinking is in [MANIFESTO.md](MANIFESTO.md). The protocol docs live in [docs/spec-overview.md](docs/spec-overview.md) and [docs/spec-deep-dive.md](docs/spec-deep-dive.md).
 
 ## Install
 
@@ -14,69 +18,76 @@ The long-form thinking is in [MANIFESTO.md](MANIFESTO.md).
 npm install @trust-graduation/core
 ```
 
-## Six-line Embed
+## Minimal Embed
 
 ```js
 import { TrustGraduation } from "@trust-graduation/core";
 
 const tg = new TrustGraduation({ workspace: "user-123", evidence: localLedger });
-const decision = tg.canExecute({ actionClass: "email.send.external", context: { recipient, body } });
+const decision = tg.canExecute({
+  actionClass: "email.send.external",
+  context: {
+    principal: "user-123",
+    requestedBy: "assistant",
+    recipient: "buyer@example.com",
+    body,
+    constraints: { scope: "once" }
+  }
+});
 
 if (decision.allowed) await actuallySend();
 else if (decision.needsApproval) await pushApprovalToUser(decision.packet);
 ```
 
-External sends, public posts, money movement, legal commitments, and policy changes stay approval-gated by default.
+High-risk external actions remain approval-gated by default: sends, public posts, money movement, legal commitments, policy changes, and authority expansion.
 
-## Embedded By
+## Protocol Objects
 
-Early adopters will be listed here.
+Trust Graduation v0.1 centers on five objects:
 
-## Coming Next
+- `ActionClassPolicy`
+- `EvidenceEvent`
+- `Decision`
+- `ApprovalPacket`
+- `ExecutionReceipt` as a forward-compatible hook for the separate receipts primitive
 
-Trust Graduation is intended as a small protocol family, not a single SDK. The next primitives stay gated on adoption: do not ship a new package until the prior primitive has at least one external embed or partner review.
+The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloads now. Receipts remain a separate protocol primitive under active design.
 
-- `@trust-graduation/receipts` — universal evidence that an agent-mediated action happened. Preview: `schemas/v2/receipts.schema.json`.
-- `@trust-graduation/open-loops` — shared pending-work shape so agents can claim, close, dedupe, and hand off work.
-- `@trust-graduation/voice` — portable user voice profile and draft-conformance payloads.
-- `@trust-graduation/federation` — optional consented hosted layer for cross-product evidence, receipts, loops, and voice.
+## Core Lifecycle
 
-This week: autonomy. Next: receipts. Then: open loops. Then: voice. All under one open standard.
+1. An agent proposes a requested action in an action class.
+2. The host evaluates policy plus evidence.
+3. The host returns a `Decision`.
+4. If review is required, the host issues an `ApprovalPacket`.
+5. If a human approves, the bounded action may execute.
+6. Execution, outcomes, corrections, and rollbacks become future evidence.
 
 ## What This Repo Contains
 
 - `src/` — zero-dependency JavaScript reference implementation.
 - `schemas/v1/` — JSON schemas for action classes, evidence, decisions, approval packets, and license entitlements.
-- `schemas/v2/receipts.schema.json` — forward-design preview for the receipts primitive; not a shipped package yet.
-- `docs/spec-overview.md` — one-page spec overview.
-- `docs/spec-deep-dive.md` — compact v1 protocol details.
-- `docs/receipts-forward-design.md` — rationale and storage-agnostic API sketch for future receipts work.
-- `docs/github-npm-publishing.md` — what belongs in GitHub and npm, plus release checklist.
+- `schemas/v2/receipts.schema.json` — forward-design preview for the receipts primitive.
+- `docs/spec-overview.md` — portable protocol overview.
+- `docs/spec-deep-dive.md` — protocol objects, lifecycle, regression, and conformance guidance.
+- `docs/receipts-forward-design.md` — storage-agnostic receipts direction.
 - `docs/pdf/trust-graduation-protocol.pdf` — printable protocol packet generated with `npm run docs:pdf`.
 - `examples/minimal.js` — minimal embed example.
-- `packages/python/` and `packages/go/` — package placeholders for the next language ports.
-
-## Documentation
-
-Generate the printable protocol packet:
-
-```bash
-npm run docs:pdf
-```
-
-The PDF is written to `docs/pdf/trust-graduation-protocol.pdf`. It is included in the npm package because `package.json` includes `docs/` in `files`.
+- `packages/python/` and `packages/go/` — package placeholders for language ports.
 
 ## Core Concepts
 
-- Action class: the specific kind of thing an agent wants to do, such as `draft.response` or `email.send.external`.
-- Evidence ledger: approvals, edits, rejections, receipts, outcomes, trust issues, and rollbacks.
+- Action class: the smallest portable unit of earned autonomy, such as `draft.response` or `email.send.external`.
+- Evidence ledger: real approvals, edits, rejections, executions, receipts, outcomes, trust issues, and rollbacks.
 - Autonomy level: the current earned capability for an action class.
-- Approval packet: a standard payload any agent product can render when a human decision is required.
-- License entitlement: a free-stage token payload for protocol features such as `core`, `schemas`, `approval-packets`, `local-evidence`, and future federation.
+- Approval packet: a portable bounded-review payload any product can render.
+- Decision: the protocol object that explains whether the requested action is allowed now, gated, or regressed.
+- License entitlement: an optional product/package capability gate. It does not grant autonomy.
 
 ## License Entitlements
 
-The package defaults to a free local protocol license. Tokens are intentionally simple in alpha: `tg1.<base64url-json>`. They do not contact a server and they do not change the Trust Graduation decision contract.
+The package defaults to a free local protocol license. Tokens are intentionally simple in alpha: `tg1.<base64url-json>`.
+
+They do not contact a server and they do not change Trust Graduation decisions.
 
 ```js
 import { createLicenseToken, decodeLicenseToken, licenseAllows } from "@trust-graduation/core";
@@ -93,11 +104,11 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.2`.
+Package status: `0.1.0-alpha.3`.
 
 Schema status: draft `schemas/v1/`.
 
-The schemas describe the protocol shape. The package is the reference implementation. Schemas reach stable `v1.0` after three external implementations or integrations, one public adopter, and no breaking schema changes for 30 days. Package `1.0.0` follows when the JavaScript API matches stable schemas and has CI-covered compatibility tests.
+Schemas describe the protocol shape. The package is the JavaScript reference implementation. Schemas reach stable `v1.0` after outside implementations validate the object model and no breaking schema changes are required for a sustained period.
 
 ## License
 

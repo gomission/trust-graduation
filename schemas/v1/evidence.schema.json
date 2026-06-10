@@ -5,19 +5,38 @@
   "type": "object",
   "required": ["actionClass", "type"],
   "properties": {
+    "eventId": { "type": "string" },
     "actionClass": { "type": "string" },
     "type": {
       "type": "string",
-      "examples": ["approved", "edited_and_accepted", "rejected", "trust_issue", "sent_with_receipt"]
+      "enum": [
+        "approved",
+        "edited",
+        "rejected",
+        "held",
+        "executed",
+        "receipt_logged",
+        "outcome_positive",
+        "outcome_negative",
+        "trust_issue",
+        "rollback",
+        "policy_exception",
+        "edited_and_accepted",
+        "sent_with_receipt"
+      ]
     },
+    "principal": { "type": "string" },
+    "agent": { "type": "string" },
     "source": { "type": "string" },
     "actor": { "type": "string" },
+    "decisionId": { "type": "string" },
+    "approvalPacketId": { "type": "string" },
     "receiptId": { "type": "string" },
     "outcomeId": { "type": "string" },
     "editDistance": { "type": "number", "minimum": 0 },
+    "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
     "metadata": { "type": "object" },
     "recordedAt": { "type": "string", "format": "date-time" }
   },
   "additionalProperties": true
 }
-

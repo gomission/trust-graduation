@@ -8,14 +8,19 @@
     "protocol": { "const": "trust-graduation" },
     "version": { "type": "string" },
     "packetId": { "type": "string" },
+    "decisionId": { "type": "string" },
     "workspace": { "type": "string" },
+    "scope": { "type": "string" },
     "requestedBy": { "type": "string" },
+    "principal": { "type": "string" },
     "actionClass": { "type": "string" },
     "riskClass": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
     "externalSideEffects": { "type": "string" },
     "approvalRequired": { "type": "boolean" },
     "receiptRequired": { "type": "boolean" },
     "reason": { "type": "string" },
+    "requestedAction": { "type": "object" },
+    "constraints": { "type": "object" },
     "context": { "type": "object" },
     "evidence": { "type": "object" },
     "decisions": {
@@ -27,11 +32,12 @@
           "id": { "type": "string" },
           "label": { "type": "string" },
           "effect": { "type": "string" }
-        }
+        },
+        "additionalProperties": false
       }
     },
-    "createdAt": { "type": "string", "format": "date-time" }
+    "createdAt": { "type": "string", "format": "date-time" },
+    "expiresAt": { "type": "string", "format": "date-time" }
   },
   "additionalProperties": false
 }
-
