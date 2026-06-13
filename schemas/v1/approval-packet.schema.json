@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://trust-graduation.org/schemas/v1/approval-packet.schema.json",
+  "$id": "https://gomission.io/spec/trust-graduation/0.1/approval-packet.schema.json",
   "title": "Trust Graduation Approval Packet",
   "type": "object",
   "required": ["protocol", "version", "packetId", "actionClass", "riskClass", "approvalRequired", "context", "decisions"],

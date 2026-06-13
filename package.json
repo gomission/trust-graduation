@@ -1,6 +1,6 @@
 {
   "name": "@trust-graduation/core",
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "description": "Embeddable permission, evidence, and approval protocol for human-gated agent autonomy.",
   "type": "module",
   "types": "./src/index.d.ts",

@@ -105,7 +105,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.4`.
+Package status: `0.1.0-alpha.5`.
 
 Schema status: draft `schemas/v1/`.
 

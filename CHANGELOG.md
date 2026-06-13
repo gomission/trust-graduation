@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0-alpha.5
+
+- Aligned public v1 schema `$id` hosts with the canonical Mission protocol URL: `https://gomission.io/spec/trust-graduation/0.1/`.
+- Kept non-core extension schemas on their existing package/docs hosts.
+
 ## 0.1.0-alpha.4
 
 - Reconciled the v0.1 canonical action-class registry with Mission: `read.context`, `draft.compose`, `draft.response`, `tool.call.local`, `email.send.internal`, `email.send.external`, `calendar.create`, `social.post.public`, `payment.initiate`, and `proposal.submit`.
