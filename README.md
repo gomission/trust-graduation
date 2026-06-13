@@ -49,9 +49,9 @@ Trust Graduation v0.1 centers on five objects:
 - `EvidenceEvent`
 - `Decision`
 - `ApprovalPacket`
-- `ExecutionReceipt` as a forward-compatible hook for the separate receipts primitive
+- `ExecutionReceipt`
 
-The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloads now. Receipts remain a separate protocol primitive under active design.
+The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloads now. v1 receipt schemas define the audit hook; cryptographic receipt chains remain forward design.
 
 ## Core Lifecycle
 
@@ -65,7 +65,7 @@ The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloa
 ## What This Repo Contains
 
 - `src/` — zero-dependency JavaScript reference implementation.
-- `schemas/v1/` — JSON schemas for action classes, evidence, decisions, approval packets, and license entitlements.
+- `schemas/v1/` — JSON schemas for action classes, evidence, decisions, approval packets, receipts, and license entitlements.
 - `schemas/v2/receipts.schema.json` — forward-design preview for the receipts primitive.
 - `docs/spec-overview.md` — portable protocol overview.
 - `docs/spec-deep-dive.md` — protocol objects, lifecycle, regression, and conformance guidance.
@@ -78,6 +78,7 @@ The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloa
 
 - Action class: the smallest portable unit of earned autonomy, such as `draft.response` or `email.send.external`.
 - Evidence ledger: real approvals, edits, rejections, executions, receipts, outcomes, trust issues, and rollbacks.
+- Provenance-weighted evidence: outcome quality can be multiplied by source reliability, for example receipt/principal evidence at 1.0, connector evidence at 0.3, and model-inferred evidence at 0.1.
 - Autonomy level: the current earned capability for an action class.
 - Approval packet: a portable bounded-review payload any product can render.
 - Decision: the protocol object that explains whether the requested action is allowed now, gated, or regressed.
@@ -104,7 +105,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.3`.
+Package status: `0.1.0-alpha.4`.
 
 Schema status: draft `schemas/v1/`.
 

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { TrustGraduation, createLicenseToken, decodeLicenseToken, licenseAllows, summarizeEvidence } from "../src/index.js";
+import { TrustGraduation, createLicenseToken, decodeLicenseToken, evidenceWeight, licenseAllows, normalizeActionClass, summarizeEvidence } from "../src/index.js";
 
 const now = () => new Date("2026-05-30T12:00:00.000Z");
 const repo = path.resolve(new URL("..", import.meta.url).pathname);
@@ -43,8 +43,15 @@ test("decision emits protocol-facing fields", () => {
   assert.equal(result.actionClass, "draft.response");
   assert.equal(result.requestedAction?.draftType, "reply");
   assert.equal(result.constraints?.scope, "once");
+  assert.equal(result.status, "allowed");
   assert.match(result.decisionId || "", /^tgd_/);
   assert.equal(result.createdAt, "2026-05-30T12:00:00.000Z");
+});
+
+test("canonicalizes legacy action class aliases", () => {
+  assert.equal(normalizeActionClass("payment.spend"), "payment.initiate");
+  assert.equal(normalizeActionClass("calendar.create.external"), "calendar.create");
+  assert.equal(normalizeActionClass("relationship_followup_drafting"), "draft.response");
 });
 
 test("external sends remain approval-gated even with clean evidence", () => {
@@ -88,6 +95,33 @@ test("explicit approval permits a gated external action once", () => {
 
   assert.equal(result.allowed, true);
   assert.equal(result.needsApproval, false);
+  assert.equal(result.status, "allowed");
+});
+
+test("human-only payment class does not become agent-executable", () => {
+  const tg = new TrustGraduation({ workspace: "user-123", now, evidence: [] });
+  const result = tg.canExecute({
+    actionClass: "payment.spend",
+    approval: { state: "approved", scope: "once" }
+  });
+
+  assert.equal(result.actionClass, "payment.initiate");
+  assert.equal(result.allowed, false);
+  assert.equal(result.status, "human_only");
+  assert.equal(result.mode, "human_only");
+});
+
+test("bounded internal sends surface allowed_with_constraints", () => {
+  const tg = new TrustGraduation({
+    workspace: "user-123",
+    now,
+    evidence: Array.from({ length: 12 }, () => ({ actionClass: "email.send.internal", type: "approved" }))
+  });
+
+  const result = tg.canExecute({ actionClass: "email.send.internal" });
+  assert.equal(result.allowed, true);
+  assert.equal(result.status, "allowed_with_constraints");
+  assert.deepEqual(result.constraints.rate_limit, { count: 5, window: "PT1H" });
 });
 
 test("trust issues force review", () => {
@@ -108,6 +142,17 @@ test("trust issues force review", () => {
 test("summarizes evidence objects and arrays", () => {
   assert.equal(summarizeEvidence({ actionClass: "draft.response", positive: 5 }).positive, 5);
   assert.equal(summarizeEvidence([{ actionClass: "draft.response", type: "rejected" }], "draft.response").negative, 1);
+});
+
+test("composes decision and provenance evidence weights", () => {
+  assert.equal(evidenceWeight({ type: "approved", sourceType: "connector" }), 0.255);
+  assert.equal(evidenceWeight({ type: "rejected", sourceType: "model_inferred" }), -0.1);
+  const summary = summarizeEvidence([
+    { actionClass: "draft.response", type: "approved", sourceType: "connector" },
+    { actionClass: "draft.response", type: "rejected", sourceType: "model_inferred" }
+  ], "draft.response");
+  assert.equal(summary.weightedPositive, 0.255);
+  assert.equal(summary.weightedNegative, 0.1);
 });
 
 test("protocol license tokens expose future entitlements without gating local core", () => {

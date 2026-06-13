@@ -28,6 +28,20 @@
     "principal": { "type": "string" },
     "agent": { "type": "string" },
     "source": { "type": "string" },
+    "sourceType": {
+      "type": "string",
+      "enum": ["receipt", "principal", "connector", "model_inferred"]
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["receipt", "principal", "connector", "model_inferred"]
+    },
+    "decisionWeight": { "type": "number", "minimum": -1, "maximum": 1 },
+    "decision_weight": { "type": "number", "minimum": -1, "maximum": 1 },
+    "provenanceWeight": { "type": "number", "minimum": 0, "maximum": 1 },
+    "provenance_weight": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evidenceWeight": { "type": "number", "minimum": -1, "maximum": 1 },
+    "evidence_weight": { "type": "number", "minimum": -1, "maximum": 1 },
     "actor": { "type": "string" },
     "decisionId": { "type": "string" },
     "approvalPacketId": { "type": "string" },

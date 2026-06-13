@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.4
+
+- Reconciled the v0.1 canonical action-class registry with Mission: `read.context`, `draft.compose`, `draft.response`, `tool.call.local`, `email.send.internal`, `email.send.external`, `calendar.create`, `social.post.public`, `payment.initiate`, and `proposal.submit`.
+- Added legacy aliases for older class names such as `payment.spend`, `calendar.create.external`, `social.post.external`, and Mission's early underscore drafting classes.
+- Added protocol-facing decision `status` values: `allowed`, `allowed_with_constraints`, `review_required`, `deferred`, `blocked`, and `human_only`, while preserving existing `allowed`, `needsApproval`, and `mode` fields.
+- Added provenance-aware evidence weighting helpers and summary fields: `decisionWeight`, `provenanceWeight`, `evidenceWeight`, `weightedPositive`, and `weightedNegative`.
+- Expanded v1 schemas for decision constraints, provenance-weighted evidence, canonical action classes, and v1 receipt commitments.
+
 ## 0.1.0-alpha.3
 
 - Correct npm metadata to point at the current public GitHub repository.

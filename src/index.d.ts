@@ -1,6 +1,7 @@
 export type RiskClass = "low" | "medium" | "high" | "critical";
 export type EvidenceTier = "gated" | "supervised" | "auto_capped" | "review";
-export type DecisionMode = "allowed" | "supervised" | "auto_capped" | "approval_required" | "review_only" | "insufficient_evidence" | "denied" | "approved_once";
+export type DecisionStatus = "allowed" | "allowed_with_constraints" | "review_required" | "deferred" | "blocked" | "human_only";
+export type DecisionMode = "allowed" | "supervised" | "auto_capped" | "approval_required" | "review_only" | "insufficient_evidence" | "denied" | "approved_once" | "human_only";
 
 export interface ActionPolicy {
   actionClass: string;
@@ -9,7 +10,9 @@ export interface ActionPolicy {
   minimumLevel: number;
   requiresApproval: boolean;
   receiptRequired: boolean;
+  humanOnly?: boolean;
   externalSideEffects: string;
+  constraints?: Record<string, unknown>;
   description?: string;
 }
 
@@ -23,6 +26,14 @@ export interface EvidenceEvent {
   source?: string;
   evidenceSource?: string;
   evidence_source?: string;
+  sourceType?: "receipt" | "principal" | "connector" | "model_inferred";
+  source_type?: "receipt" | "principal" | "connector" | "model_inferred";
+  decisionWeight?: number;
+  decision_weight?: number;
+  provenanceWeight?: number;
+  provenance_weight?: number;
+  evidenceWeight?: number;
+  evidence_weight?: number;
   editDistance?: number;
   edit_distance?: number;
   [key: string]: unknown;
@@ -41,6 +52,8 @@ export interface EvidenceSummary {
   rollbacks: number;
   positive: number;
   negative: number;
+  weightedPositive: number;
+  weightedNegative: number;
   decisions: number;
   avgEditDistance: number;
   rejectionRate: number;
@@ -84,6 +97,7 @@ export interface TrustDecision {
   requestedAction?: Record<string, unknown>;
   allowed: boolean;
   needsApproval: boolean;
+  status: DecisionStatus;
   mode: DecisionMode;
   autonomyLevel: number;
   tier: EvidenceTier;
@@ -115,9 +129,15 @@ export class TrustGraduation {
 
 export const AUTONOMY_LEVELS: Array<{ level: number; name: string; description: string }>;
 export const DEFAULT_ACTION_POLICIES: ActionPolicy[];
+export const ACTION_CLASS_ALIASES: Record<string, string>;
+export const DECISION_WEIGHTS: Record<string, number>;
+export const PROVENANCE_WEIGHTS: Record<string, number>;
 
 export function canExecute(input: CanExecuteRequest, options?: TrustGraduationOptions): TrustDecision;
 export function summarizeEvidence(evidence?: EvidenceEvent[] | Partial<EvidenceSummary>, actionClass?: string): EvidenceSummary;
+export function decisionWeight(entry?: EvidenceEvent): number;
+export function provenanceWeight(entry?: EvidenceEvent): number;
+export function evidenceWeight(entry?: EvidenceEvent): number;
 export function tierFromEvidence(summary?: Partial<EvidenceSummary>): EvidenceTier;
 export function levelFromTier(tier: EvidenceTier): number;
 export function buildApprovalPacket(input?: Record<string, unknown>): ApprovalPacket;

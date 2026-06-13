@@ -30,12 +30,16 @@ An action class is the smallest portable unit of earned autonomy.
 
 Examples:
 
+- `read.context`
+- `draft.compose`
 - `draft.response`
-- `calendar.propose.internal`
-- `calendar.send.external`
+- `tool.call.local`
+- `email.send.internal`
 - `email.send.external`
-- `task.cleanup.local`
-- `policy.change`
+- `calendar.create`
+- `social.post.public`
+- `payment.initiate`
+- `proposal.submit`
 
 Action classes should be:
 
@@ -79,6 +83,10 @@ Recommended fields:
 - `principal`
 - `agent`
 - `source`
+- `sourceType`
+- `decisionWeight`
+- `provenanceWeight`
+- `evidenceWeight`
 - `recordedAt`
 - `decisionId`
 - `approvalPacketId`
@@ -104,6 +112,14 @@ Canonical event types should include at least:
 
 Evidence must come from real interaction, execution, outcome, or repair. More drafts, raw model confidence, or synthetic success claims are not evidence.
 
+Implementations should compose decision quality and provenance where source reliability is available:
+
+```text
+evidenceWeight = decisionWeight * provenanceWeight
+```
+
+Default provenance weights are `receipt=1.0`, `principal=1.0`, `connector=0.3`, and `model_inferred=0.1`.
+
 ### 4.3 `Decision`
 
 Represents the output of evaluating one requested action.
@@ -125,6 +141,7 @@ Recommended fields:
 - `actionClass`
 - `allowed`
 - `needsApproval`
+- `status`
 - `mode`
 - `autonomyLevel`
 - `tier`
@@ -195,20 +212,20 @@ This reference implementation uses four evidence tiers:
 
 These tiers are implementation guidance, not the entire protocol. A host may use different internals as long as it returns a conforming `Decision` and preserves the core trust boundary.
 
-## 6. Decision Modes
+## 6. Decision Status And Modes
 
-A conforming implementation should use explicit decision modes rather than a single boolean.
+A conforming implementation should use explicit decision status values rather than a single boolean.
 
-Recommended modes:
+Recommended status values:
 
 - `allowed`
-- `supervised`
-- `auto_capped`
-- `approval_required`
-- `review_only`
-- `insufficient_evidence`
-- `denied`
-- `approved_once`
+- `allowed_with_constraints`
+- `review_required`
+- `deferred`
+- `blocked`
+- `human_only`
+
+The JavaScript reference implementation also keeps the older `mode` field for compatibility and explanation. `mode` may contain values such as `supervised`, `auto_capped`, `approval_required`, `review_only`, `insufficient_evidence`, `approved_once`, or `human_only`.
 
 This makes the protocol legible to products, logs, and auditors.
 
@@ -218,14 +235,16 @@ Trust Graduation is only meaningful if approvals and grants are bounded.
 
 Constraints may include:
 
-- one-time execution
-- allowed recipients or domains
-- amount or consequence caps
-- time limits or expiry
-- required human-visible fields
-- rollback expectation
-- disallowed data sources
-- no execution from untrusted retrieved content alone
+- `internal_only`
+- `staging_only`
+- `dry_run_only`
+- `max_amount`
+- `rate_limit`
+- `recipient_allowlist`
+- `domain_allowlist`
+- `expires_at`
+- `requires_witness`
+- `redaction_rules`
 
 A request should never be treated as globally approved just because a similar action was approved before.
 

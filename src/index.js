@@ -3,9 +3,9 @@ import { levelFromTier, summarizeEvidence, tierFromEvidence } from "./evidence.j
 import { AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, policyForActionClass } from "./policies.js";
 
 export { buildApprovalPacket } from "./approval.js";
-export { emptyEvidenceSummary, levelFromTier, summarizeEvidence, tierFromEvidence } from "./evidence.js";
+export { DECISION_WEIGHTS, PROVENANCE_WEIGHTS, decisionWeight, emptyEvidenceSummary, evidenceWeight, levelFromTier, provenanceWeight, summarizeEvidence, tierFromEvidence } from "./evidence.js";
 export { createLicenseToken, decodeLicenseToken, licenseAllows } from "./license.js";
-export { AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, inferExternalSideEffect, inferRiskClass, normalizeActionClass, policyForActionClass } from "./policies.js";
+export { ACTION_CLASS_ALIASES, AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, inferExternalSideEffect, inferRiskClass, normalizeActionClass, policyForActionClass } from "./policies.js";
 
 export class TrustGraduation {
   constructor({ workspace = "", evidence = [], policies = DEFAULT_ACTION_POLICIES, now = () => new Date() } = {}) {
@@ -22,7 +22,7 @@ export class TrustGraduation {
     const tier = tierFromEvidence(evidence);
     const autonomyLevel = levelFromTier(tier);
     const explicitlyApproved = approval?.state === "approved" || context.approvalState === "approved";
-    const highRisk = policy.riskClass === "high" || policy.riskClass === "critical" || policy.externalSideEffects !== "none";
+    const highRisk = policy.riskClass === "high" || policy.riskClass === "critical";
     const createdAt = this.now().toISOString();
     const decisionId = `tgd_${createdAt.replace(/[^0-9]/g, "").slice(0, 14)}_${slug(actionClass)}`;
     const requestedAction = context.requestedAction && typeof context.requestedAction === "object"
@@ -30,17 +30,39 @@ export class TrustGraduation {
       : context;
     const constraints = context.constraints && typeof context.constraints === "object"
       ? context.constraints
-      : {};
+      : policy.constraints && typeof policy.constraints === "object"
+        ? policy.constraints
+        : {};
+
+    if (policy.actionClass === "payment.initiate" || policy.humanOnly) {
+      return decision({
+        decisionId,
+        createdAt,
+        actionClass: policy.actionClass,
+        requestedAction,
+        constraints,
+        allowed: false,
+        needsApproval: true,
+        status: "human_only",
+        mode: "human_only",
+        autonomyLevel,
+        tier,
+        policy,
+        evidence,
+        reason: "Human-only action class. The agent may prepare rationale, but only the principal may execute."
+      });
+    }
 
     if (highRisk && !explicitlyApproved) {
       return decision({
         decisionId,
         createdAt,
-        actionClass,
+        actionClass: policy.actionClass,
         requestedAction,
         constraints,
         allowed: false,
         needsApproval: true,
+        status: context.asynchronousApproval ? "deferred" : "review_required",
         mode: "approval_required",
         autonomyLevel,
         tier,
@@ -52,7 +74,7 @@ export class TrustGraduation {
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
           principal: typeof context.principal === "string" ? context.principal : "",
-          actionClass,
+          actionClass: policy.actionClass,
           requestedAction,
           constraints,
           context,
@@ -70,11 +92,12 @@ export class TrustGraduation {
       return decision({
         decisionId,
         createdAt,
-        actionClass,
+        actionClass: policy.actionClass,
         requestedAction,
         constraints,
         allowed: true,
         needsApproval: false,
+        status: hasExecutionConstraints(constraints) ? "allowed_with_constraints" : "allowed",
         mode: "approved_once",
         autonomyLevel,
         tier,
@@ -88,11 +111,12 @@ export class TrustGraduation {
       return decision({
         decisionId,
         createdAt,
-        actionClass,
+        actionClass: policy.actionClass,
         requestedAction,
         constraints,
         allowed: false,
         needsApproval: true,
+        status: context.asynchronousApproval ? "deferred" : "review_required",
         mode: "review_only",
         autonomyLevel,
         tier,
@@ -104,7 +128,7 @@ export class TrustGraduation {
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
           principal: typeof context.principal === "string" ? context.principal : "",
-          actionClass,
+          actionClass: policy.actionClass,
           requestedAction,
           constraints,
           context,
@@ -122,11 +146,12 @@ export class TrustGraduation {
       return decision({
         decisionId,
         createdAt,
-        actionClass,
+        actionClass: policy.actionClass,
         requestedAction,
         constraints,
         allowed: false,
         needsApproval: true,
+        status: context.asynchronousApproval ? "deferred" : "review_required",
         mode: "approval_required",
         autonomyLevel,
         tier,
@@ -138,7 +163,7 @@ export class TrustGraduation {
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
           principal: typeof context.principal === "string" ? context.principal : "",
-          actionClass,
+          actionClass: policy.actionClass,
           requestedAction,
           constraints,
           context,
@@ -156,11 +181,12 @@ export class TrustGraduation {
       return decision({
         decisionId,
         createdAt,
-        actionClass,
+        actionClass: policy.actionClass,
         requestedAction,
         constraints,
         allowed: false,
         needsApproval: true,
+        status: "review_required",
         mode: "insufficient_evidence",
         autonomyLevel,
         tier,
@@ -172,7 +198,7 @@ export class TrustGraduation {
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
           principal: typeof context.principal === "string" ? context.principal : "",
-          actionClass,
+          actionClass: policy.actionClass,
           requestedAction,
           constraints,
           context,
@@ -189,11 +215,12 @@ export class TrustGraduation {
     return decision({
       decisionId,
       createdAt,
-      actionClass,
+      actionClass: policy.actionClass,
       requestedAction,
       constraints,
       allowed: true,
       needsApproval: false,
+      status: hasExecutionConstraints(constraints) ? "allowed_with_constraints" : "allowed",
       mode: tier === "auto_capped" ? "auto_capped" : tier === "supervised" ? "supervised" : "allowed",
       autonomyLevel,
       tier,
@@ -218,6 +245,22 @@ function slug(value = "") {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60) || "action";
+}
+
+function hasExecutionConstraints(constraints = {}) {
+  const keys = Object.keys(constraints || {});
+  return keys.some((key) => [
+    "internal_only",
+    "staging_only",
+    "dry_run_only",
+    "max_amount",
+    "rate_limit",
+    "recipient_allowlist",
+    "domain_allowlist",
+    "expires_at",
+    "requires_witness",
+    "redaction_rules"
+  ].includes(key));
 }
 
 export function canExecute(input = {}, options = {}) {

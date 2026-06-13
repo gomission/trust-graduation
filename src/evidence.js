@@ -18,6 +18,31 @@ export const NEGATIVE_EVIDENCE_TYPES = new Set([
   "hallucination"
 ]);
 
+export const DECISION_WEIGHTS = {
+  sent: 1,
+  executed: 1,
+  sent_with_receipt: 1,
+  approved: 0.85,
+  used: 0.85,
+  edited_and_accepted: 0.35,
+  minor_edit: 0.35,
+  edited: -0.15,
+  heavy_rewrite: -0.55,
+  held: 0,
+  rejected: -1,
+  overrode: -1,
+  rollback: -1,
+  trust_issue: -1,
+  hallucination: -1
+};
+
+export const PROVENANCE_WEIGHTS = {
+  receipt: 1,
+  principal: 1,
+  connector: 0.3,
+  model_inferred: 0.1
+};
+
 export function emptyEvidenceSummary(actionClass) {
   return {
     actionClass,
@@ -32,6 +57,8 @@ export function emptyEvidenceSummary(actionClass) {
     rollbacks: 0,
     positive: 0,
     negative: 0,
+    weightedPositive: 0,
+    weightedNegative: 0,
     decisions: 0,
     avgEditDistance: 0,
     rejectionRate: 0
@@ -48,6 +75,36 @@ function actionClassOf(entry = {}) {
 
 function typeOf(entry = {}) {
   return String(entry.type || entry.eventType || entry.event_type || entry.decision || "").toLowerCase();
+}
+
+function provenanceTypeOf(entry = {}) {
+  return String(entry.sourceType || entry.source_type || entry.provenanceType || entry.provenance_type || "").toLowerCase();
+}
+
+export function decisionWeight(entry = {}) {
+  const explicit = entry.decisionWeight ?? entry.decision_weight;
+  if (Number.isFinite(Number(explicit))) return Math.max(-1, Math.min(1, Number(explicit)));
+  const type = typeOf(entry);
+  if (Object.prototype.hasOwnProperty.call(DECISION_WEIGHTS, type)) return DECISION_WEIGHTS[type];
+  if (/approve|sent|used|outcome|advanced|success|receipt/.test(type)) return 1;
+  if (/edited|edit/.test(type)) return -0.15;
+  if (/held|hold/.test(type)) return 0;
+  if (/reject|overrode|override|rollback|trust_issue|complaint|hallucination|repair/.test(type)) return -1;
+  return 0;
+}
+
+export function provenanceWeight(entry = {}) {
+  const explicit = entry.provenanceWeight ?? entry.provenance_weight;
+  if (Number.isFinite(Number(explicit))) return Math.max(0, Math.min(1, Number(explicit)));
+  const sourceType = provenanceTypeOf(entry);
+  if (Object.prototype.hasOwnProperty.call(PROVENANCE_WEIGHTS, sourceType)) return PROVENANCE_WEIGHTS[sourceType];
+  return 1;
+}
+
+export function evidenceWeight(entry = {}) {
+  const explicit = entry.evidenceWeight ?? entry.evidence_weight;
+  if (Number.isFinite(Number(explicit))) return Math.max(-1, Math.min(1, Number(explicit)));
+  return Number((decisionWeight(entry) * provenanceWeight(entry)).toFixed(4));
 }
 
 export function summarizeEvidence(evidence = [], actionClass = "") {
@@ -67,7 +124,10 @@ export function summarizeEvidence(evidence = [], actionClass = "") {
     sources.add(sourceOf(entry));
     const type = typeOf(entry);
     const editDistance = Number(entry.editDistance ?? entry.edit_distance ?? 0);
+    const weight = evidenceWeight(entry);
     if (editDistance > summary.avgEditDistance) summary.avgEditDistance = editDistance;
+    if (weight > 0) summary.weightedPositive += weight;
+    if (weight < 0) summary.weightedNegative += Math.abs(weight);
 
     if (/approve|approved|sent|used/.test(type)) {
       summary.approvals += 1;
@@ -131,4 +191,3 @@ export function levelFromTier(tier) {
   if (tier === "review") return 0;
   return 1;
 }
-

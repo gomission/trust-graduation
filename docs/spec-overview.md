@@ -28,9 +28,11 @@ Trust Graduation v0.1 defines five primary protocol objects:
 2. `EvidenceEvent`
 3. `Decision`
 4. `ApprovalPacket`
-5. `ExecutionReceipt` (forward-compatible in this repo; the full receipts primitive remains separate)
+5. `ExecutionReceipt`
 
 The reference implementation also defines a license entitlement payload. Entitlements govern package or service features. They do not grant autonomy and they do not change decision outcomes.
+
+Evidence may compose outcome quality with source reliability. The default provenance weights are `receipt=1.0`, `principal=1.0`, `connector=0.3`, and `model_inferred=0.1`.
 
 ## Core Lifecycle
 
@@ -79,6 +81,7 @@ A conforming implementation should make the following visible for each requested
 - what action class is requested
 - what constraints apply
 - what evidence was considered
+- what decision status applies
 - whether approval is required
 - whether the action executed
 - what receipt or audit record exists

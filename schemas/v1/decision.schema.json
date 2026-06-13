@@ -3,7 +3,7 @@
   "$id": "https://trust-graduation.org/schemas/v1/decision.schema.json",
   "title": "Trust Graduation Decision",
   "type": "object",
-  "required": ["protocol", "version", "allowed", "needsApproval", "mode", "autonomyLevel", "tier", "policy", "evidence", "reason"],
+  "required": ["protocol", "version", "allowed", "needsApproval", "status", "mode", "autonomyLevel", "tier", "policy", "evidence", "reason"],
   "properties": {
     "protocol": { "const": "trust-graduation" },
     "version": { "type": "string" },
@@ -12,15 +12,49 @@
     "actionClass": { "type": "string" },
     "allowed": { "type": "boolean" },
     "needsApproval": { "type": "boolean" },
+    "status": {
+      "type": "string",
+      "enum": ["allowed", "allowed_with_constraints", "review_required", "deferred", "blocked", "human_only"]
+    },
     "mode": {
       "type": "string",
-      "enum": ["allowed", "supervised", "auto_capped", "approval_required", "review_only", "insufficient_evidence", "denied", "approved_once"]
+      "enum": ["allowed", "supervised", "auto_capped", "approval_required", "review_only", "insufficient_evidence", "denied", "approved_once", "human_only"]
     },
     "autonomyLevel": { "type": "integer", "minimum": 0, "maximum": 5 },
     "tier": { "type": "string", "enum": ["gated", "supervised", "auto_capped", "review"] },
     "policy": { "$ref": "action-class.schema.json" },
     "evidence": { "type": "object" },
-    "constraints": { "type": "object" },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "internal_only": { "type": "boolean" },
+        "staging_only": { "type": "boolean" },
+        "dry_run_only": { "type": "boolean" },
+        "max_amount": { "type": "number", "minimum": 0 },
+        "rate_limit": {
+          "type": "object",
+          "required": ["count", "window"],
+          "properties": {
+            "count": { "type": "integer", "minimum": 1 },
+            "window": { "type": "string" }
+          }
+        },
+        "recipient_allowlist": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "domain_allowlist": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "requires_witness": { "type": "boolean" },
+        "redaction_rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "reason": { "type": "string" },
     "packet": { "$ref": "approval-packet.schema.json" },
     "createdAt": { "type": "string", "format": "date-time" }
