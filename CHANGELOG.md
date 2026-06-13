@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.6
+
+- Set `https://trustgraduation.org/` as the canonical protocol homepage for GitHub and npm package metadata.
+- Added public crawler resources to the README: v0.1 spec, `llms.txt`, `humans.txt`, and `/.well-known/trust-graduation`.
+- Corrected package repository and issue URLs to the active GitHub repo.
+
 ## 0.1.0-alpha.5
 
 - Aligned public v1 schema `$id` hosts with the canonical Mission protocol URL: `https://gomission.io/spec/trust-graduation/0.1/`.

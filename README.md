@@ -10,7 +10,16 @@ Trust Graduation does not grant global trust. It evaluates one requested action 
 
 Apache-licensed. Zero dependencies. Reference implementation: Mission by Phenomena Labs Ltd.
 
-The long-form thinking is in [MANIFESTO.md](MANIFESTO.md). The protocol docs live in [docs/spec-overview.md](docs/spec-overview.md) and [docs/spec-deep-dive.md](docs/spec-deep-dive.md).
+Canonical protocol site: [trustgraduation.org](https://trustgraduation.org/).
+
+Public spec and crawler resources:
+
+- Spec v0.1: [trustgraduation.org/spec/0.1/](https://trustgraduation.org/spec/0.1/)
+- Agent brief: [trustgraduation.org/llms.txt](https://trustgraduation.org/llms.txt)
+- Well-known manifest: [trustgraduation.org/.well-known/trust-graduation](https://trustgraduation.org/.well-known/trust-graduation)
+- Human credits: [trustgraduation.org/humans.txt](https://trustgraduation.org/humans.txt)
+
+The long-form thinking is in [MANIFESTO.md](MANIFESTO.md). The repo docs live in [docs/spec-overview.md](docs/spec-overview.md) and [docs/spec-deep-dive.md](docs/spec-deep-dive.md); the canonical public draft is the website above.
 
 ## Install
 
@@ -105,7 +114,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.5`.
+Package status: `0.1.0-alpha.6`.
 
 Schema status: draft `schemas/v1/`.
 
