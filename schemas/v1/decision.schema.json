@@ -56,6 +56,23 @@
       }
     },
     "reason": { "type": "string" },
+    "graduationPath": {
+      "type": "object",
+      "properties": {
+        "needed": { "type": "number", "minimum": 0 },
+        "current": { "type": "number", "minimum": 0 },
+        "next_best_action": {
+          "type": "string",
+          "enum": ["prepareApprovalPacket", "request_principal_approval", "run_dry_run", "collect_receipt", "reduce_scope", "stop"]
+        },
+        "safe_fallback_action_class": { "type": "string" },
+        "required_evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
     "packet": { "$ref": "approval-packet.schema.json" },
     "createdAt": { "type": "string", "format": "date-time" }
   },

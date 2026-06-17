@@ -79,6 +79,9 @@ test("external sends remain approval-gated even with clean evidence", () => {
   assert.equal(result.packet?.principal, "user-123");
   assert.equal(result.packet?.requestedBy, "assistant");
   assert.equal(result.packet?.constraints?.scope, "once");
+  assert.equal(result.graduationPath?.next_best_action, "prepareApprovalPacket");
+  assert.equal(result.graduationPath?.safe_fallback_action_class, "draft.response");
+  assert.ok(result.graduationPath?.required_evidence?.includes("principal approval receipt"));
 });
 
 test("explicit approval permits a gated external action once", () => {
@@ -109,6 +112,7 @@ test("human-only payment class does not become agent-executable", () => {
   assert.equal(result.allowed, false);
   assert.equal(result.status, "human_only");
   assert.equal(result.mode, "human_only");
+  assert.equal(result.graduationPath?.next_best_action, "stop");
 });
 
 test("bounded internal sends surface allowed_with_constraints", () => {
@@ -137,6 +141,7 @@ test("trust issues force review", () => {
   const result = tg.canExecute({ actionClass: "draft.response" });
   assert.equal(result.allowed, false);
   assert.equal(result.mode, "review_only");
+  assert.equal(result.graduationPath?.next_best_action, "request_principal_approval");
 });
 
 test("summarizes evidence objects and arrays", () => {

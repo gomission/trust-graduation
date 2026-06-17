@@ -49,7 +49,8 @@ export class TrustGraduation {
         tier,
         policy,
         evidence,
-        reason: "Human-only action class. The agent may prepare rationale, but only the principal may execute."
+        reason: "Human-only action class. The agent may prepare rationale, but only the principal may execute.",
+        graduationPath: graduationPath({ policy, evidence, nextBestAction: "stop", safeFallbackActionClass: "draft.compose" })
       });
     }
 
@@ -69,6 +70,7 @@ export class TrustGraduation {
         policy,
         evidence,
         reason: "External, public, money, legal, or authority-changing actions require explicit human approval.",
+        graduationPath: graduationPath({ policy, evidence, nextBestAction: "prepareApprovalPacket", safeFallbackActionClass: "draft.response" }),
         packet: buildApprovalPacket({
           decisionId,
           workspace: this.workspace,
@@ -123,6 +125,7 @@ export class TrustGraduation {
         policy,
         evidence,
         reason: "Negative evidence, trust issues, or high rejection rate require review before expanding autonomy.",
+        graduationPath: graduationPath({ policy, evidence, nextBestAction: "request_principal_approval", safeFallbackActionClass: "draft.response" }),
         packet: buildApprovalPacket({
           decisionId,
           workspace: this.workspace,
@@ -158,6 +161,7 @@ export class TrustGraduation {
         policy,
         evidence,
         reason: "This action class requires approval by policy.",
+        graduationPath: graduationPath({ policy, evidence, nextBestAction: "prepareApprovalPacket", safeFallbackActionClass: "draft.response" }),
         packet: buildApprovalPacket({
           decisionId,
           workspace: this.workspace,
@@ -193,6 +197,7 @@ export class TrustGraduation {
         policy,
         evidence,
         reason: `Action requires autonomy level ${policy.minimumLevel}; current evidence supports level ${autonomyLevel}.`,
+        graduationPath: graduationPath({ policy, evidence, nextBestAction: "collect_receipt", safeFallbackActionClass: fallbackActionClass(policy.actionClass) }),
         packet: buildApprovalPacket({
           decisionId,
           workspace: this.workspace,
@@ -261,6 +266,26 @@ function hasExecutionConstraints(constraints = {}) {
     "requires_witness",
     "redaction_rules"
   ].includes(key));
+}
+
+function graduationPath({ policy = {}, evidence = {}, nextBestAction = "prepareApprovalPacket", safeFallbackActionClass = "draft.compose" } = {}) {
+  const needed = Math.max(Number(policy.minimumLevel || 0), 0);
+  const current = Math.max(levelFromTier(evidence.tier || tierFromEvidence(evidence || {})), 0);
+  return {
+    needed,
+    current,
+    next_best_action: nextBestAction,
+    safe_fallback_action_class: safeFallbackActionClass,
+    required_evidence: policy.requiresApproval
+      ? ["principal approval receipt", "successful execution receipt for the same action_class"]
+      : ["approval or correction receipt for the same action_class"]
+  };
+}
+
+function fallbackActionClass(actionClass = "") {
+  if (/email|message|reply|response/i.test(actionClass)) return "draft.response";
+  if (/calendar|proposal|post|payment/i.test(actionClass)) return "draft.compose";
+  return "tool.call.local";
 }
 
 export function canExecute(input = {}, options = {}) {

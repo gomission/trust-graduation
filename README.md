@@ -50,6 +50,37 @@ else if (decision.needsApproval) await pushApprovalToUser(decision.packet);
 
 High-risk external actions remain approval-gated by default: sends, public posts, money movement, legal commitments, policy changes, and authority expansion.
 
+## Agent-Native Contract
+
+Agents should want Trust Graduation because it gives them a compliant path to act. A denied action is not just a refusal; it can include a `graduationPath`:
+
+```json
+{
+  "status": "review_required",
+  "actionClass": "email.send.external",
+  "reason": "External email requires explicit approval or more receipt-backed evidence.",
+  "graduationPath": {
+    "needed": 5,
+    "current": 1,
+    "next_best_action": "prepareApprovalPacket",
+    "safe_fallback_action_class": "draft.response",
+    "required_evidence": [
+      "principal approval receipt",
+      "successful execution receipt for the same action_class"
+    ]
+  }
+}
+```
+
+The expected agent behavior is:
+
+- discover the host with `/.well-known/trust-graduation`
+- classify the proposed action by consequence
+- call `canExecute` before external effects
+- prepare approval when the decision is `review_required` or `deferred`
+- stop or reduce scope when the decision is `blocked` or `human_only`
+- record receipts so future authority can be earned by action class
+
 ## Protocol Objects
 
 Trust Graduation v0.1 centers on five objects:
@@ -114,7 +145,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.6`.
+Package status: `0.1.0-alpha.7`.
 
 Schema status: draft `schemas/v1/`.
 
