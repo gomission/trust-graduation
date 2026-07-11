@@ -8,11 +8,11 @@
   "author": "Phenomena Labs Ltd <missionexecutionlayer@gmail.com> (https://trust-graduation.org)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RonenTanchum/trust-graduation.git"
+    "url": "git+https://github.com/gomission/trust-graduation.git"
   },
   "homepage": "https://trustgraduation.org/",
   "bugs": {
-    "url": "https://github.com/RonenTanchum/trust-graduation/issues"
+    "url": "https://github.com/gomission/trust-graduation/issues"
   },
   "keywords": [
     "ai-agents",

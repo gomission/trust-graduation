@@ -5,7 +5,7 @@
 Date: 2026-05-31
 Author: Phenomena Labs Ltd
 License: Apache-2.0
-Repo: [github.com/RonenTanchum/trust-graduation](https://github.com/RonenTanchum/trust-graduation)
+Repo: [github.com/gomission/trust-graduation](https://github.com/gomission/trust-graduation)
 
 ---
 
@@ -29,7 +29,7 @@ The current AI agent permission model is the equivalent of giving every new empl
 
 ## Trust Graduation: autonomy earned per action class
 
-Today we are open-sourcing **Trust Graduation**, a permission protocol for human-gated agent autonomy. The full spec, the reference implementation, the JSON schemas, and the multi-language ports are at [github.com/RonenTanchum/trust-graduation](https://github.com/RonenTanchum/trust-graduation).
+Today we are open-sourcing **Trust Graduation**, a permission protocol for human-gated agent autonomy. The full spec, the reference implementation, the JSON schemas, and the multi-language ports are at [github.com/gomission/trust-graduation](https://github.com/gomission/trust-graduation).
 
 The protocol asks one question, per action class, per user, per moment:
 
@@ -86,7 +86,7 @@ This is the inversion of the standard AI agent pitch. Most products promise "you
 
 ## Running in production today, on Claude Desktop
 
-The Trust Graduation reference implementation is live in [Mission](https://github.com/phenomenalabs/mission), a local-first execution operating system for professional goals and relationships.
+The Trust Graduation reference implementation is live in [Mission](https://github.com/gomission/mission), a local-first execution operating system for professional goals and relationships.
 
 As of today, Mission is the first product to bind a Claude Desktop session to a Trust Graduation runtime. The integration is one CLI command:
 
@@ -157,9 +157,9 @@ If you are using agents and have been silently nervous about what they might do 
 
 ## What's next
 
-The protocol is at [github.com/RonenTanchum/trust-graduation](https://github.com/RonenTanchum/trust-graduation). The package is live at [`@trust-graduation/core`](https://www.npmjs.com/package/@trust-graduation/core) on npm. The next primitive in the family is receipts. The first three integrations are open offers; the maintainers will help any agent product team embed in one day.
+The protocol is at [github.com/gomission/trust-graduation](https://github.com/gomission/trust-graduation). The package is live at [`@trust-graduation/core`](https://www.npmjs.com/package/@trust-graduation/core) on npm. The next primitive in the family is receipts. The first three integrations are open offers; the maintainers will help any agent product team embed in one day.
 
-The reference implementation is Mission, available at [github.com/phenomenalabs/mission](https://github.com/phenomenalabs/mission).
+The reference implementation is Mission, available at [github.com/gomission/mission](https://github.com/gomission/mission).
 
 Contact: [missionexecutionlayer@gmail.com](mailto:missionexecutionlayer@gmail.com).
 
