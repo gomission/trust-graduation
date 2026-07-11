@@ -93,6 +93,8 @@ Trust Graduation v0.1 centers on five objects:
 
 The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloads now. v1 receipt schemas define the audit hook; cryptographic receipt chains remain forward design.
 
+Mission's current implementation profile is documented in [docs/mission-reference-profile.md](docs/mission-reference-profile.md). It shows how a production workspace maps steward moves, approval packets, receipts, attributed outcomes, proof reports, workflow installation, and model-routing telemetry onto this protocol without expanding the portable v0.1 object model.
+
 ## Core Lifecycle
 
 1. An agent proposes a requested action in an action class.
@@ -145,7 +147,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.7`.
+Package status: `0.1.0-alpha.8`.
 
 Schema status: draft `schemas/v1/`.
 

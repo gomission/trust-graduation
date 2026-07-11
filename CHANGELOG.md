@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.0-alpha.8
+
+- Added the Mission reference implementation profile for steward moves, approval-gated workflow installation, receipts, attributed outcomes, proof reports, and model-routing telemetry.
+- Clarified which Mission features are protocol objects, implementation evidence, and product-level orchestration so adopters can remain interoperable without copying Mission's storage model.
+- Refreshed the protocol packet and package preview against the current reference implementation.
+
+## 0.1.0-alpha.7
+
+- Added machine-readable graduation paths to gated decisions: evidence still needed, the next safe action, and a lower-consequence fallback action class.
+- Extended the decision schema and reference implementation tests for agent-native recovery from review, defer, block, and human-only decisions.
+
 ## 0.1.0-alpha.6
 
 - Set `https://trustgraduation.org/` as the canonical protocol homepage for GitHub and npm package metadata.
