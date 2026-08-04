@@ -1,0 +1,10 @@
+{
+  "schema": "mission-action/v1",
+  "execution_id": "exec-mrgoyv8w-012f6e565f",
+  "workspace_id": "wkspc-abc123def456",
+  "capability": "email.send.external",
+  "target": "person@example.com",
+  "input_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "title": "Send email to person@example.com",
+  "item_id": "task:send-once"
+}

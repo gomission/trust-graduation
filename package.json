@@ -1,6 +1,6 @@
 {
   "name": "@trust-graduation/core",
-  "version": "0.1.0-alpha.8",
+  "version": "0.2.0-beta.1",
   "description": "Embeddable permission, evidence, and approval protocol for human-gated agent autonomy.",
   "type": "module",
   "types": "./src/index.d.ts",
@@ -41,6 +41,8 @@
   ],
   "scripts": {
     "test": "node --test",
+    "test:schemas": "npm test --prefix packages/mission-schemas",
+    "test:all": "npm test && npm run test:schemas",
     "example": "node examples/minimal.js",
     "docs:pdf": "python3 scripts/generate-protocol-pdf.py",
     "docs:update": "node scripts/update-protocol-docs.mjs"

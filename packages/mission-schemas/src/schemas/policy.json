@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-capability-policy/v1.json",
+  "title": "Mission Capability Policy",
+  "description": "The policy for a capability at the moment an action was authorized. Snapshotted into the receipt so replays against a mutated policy fail closed.",
+  "type": "object",
+  "required": ["schema", "capability", "max_executions", "default_expiry_seconds"],
+  "properties": {
+    "schema": { "const": "mission-capability-policy/v1" },
+    "capability": { "type": "string", "minLength": 1 },
+    "max_executions": { "type": "integer", "minimum": 1 },
+    "default_expiry_seconds": { "type": "integer", "minimum": 1 },
+    "risk_class": { "type": "string" },
+    "approval": { "type": "string" },
+    "external_side_effects": { "type": "string" }
+  },
+  "additionalProperties": false
+}

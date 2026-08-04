@@ -1,0 +1,10 @@
+{
+  "schema": "mission-decision/v1",
+  "grant_id": "grant-1234567890abcdef1234",
+  "execution_id": "exec-mrgoyv8w-012f6e565f",
+  "workspace_id": "wkspc-abc123def456",
+  "capability": "email.send.external",
+  "approval": "face_id_and_exact_preview",
+  "decided_at": "2026-07-11T20:01:00.000Z",
+  "source": "authenticated_mission_mobile"
+}

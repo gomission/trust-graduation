@@ -168,7 +168,7 @@ test("protocol license tokens expose future entitlements without gating local co
   assert.equal(licenseAllows(status, "federation"), false);
 });
 
-test("receipts v2 schema is present as forward design", () => {
+test("the earlier federated receipts v2 sketch remains available for design history", () => {
   const schema = JSON.parse(fs.readFileSync(path.join(repo, "schemas", "v2", "receipts.schema.json"), "utf8"));
   assert.equal(schema.properties.protocol.const, "trust-graduation-receipts");
   assert.ok(schema.required.includes("receiptId"));

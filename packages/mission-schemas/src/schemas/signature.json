@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-receipt-signature/v1.json",
+  "title": "Mission Receipt Signature Envelope",
+  "description": "The Ed25519 signature envelope carried by every signed receipt. Covers the canonical JSON of the receipt with this envelope removed.",
+  "type": "object",
+  "required": ["algorithm", "version", "key_id", "value", "signed_at"],
+  "properties": {
+    "algorithm": { "const": "ed25519" },
+    "version": { "const": "v1" },
+    "key_id": { "type": "string", "pattern": "^wkspc-[0-9a-f]{12}:key-[0-9a-f]{12}$" },
+    "value": { "type": "string", "minLength": 1 },
+    "signed_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

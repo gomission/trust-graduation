@@ -1,8 +1,23 @@
-# Receipts Forward Design
+# Receipts: Shipped Local Contract and Federation Direction
 
 Trust Graduation core decides what an agent has earned the right to do. Receipts are the evidence that something actually happened.
 
-This document is forward design, not a shipped package. `@trust-graduation/receipts` should only ship after `@trust-graduation/core` has at least one external embed.
+Mission now emits and verifies signed, trace-correlated local receipts using `mission-execution-receipt/v2`. The schema, canonicalization code, conformance CLI, and fixtures ship in `packages/mission-schemas` as `@gomission/mission-schemas`.
+
+The separate `@trust-graduation/receipts` storage/federation package described below remains forward design. It should only ship after an external embed demonstrates a real interoperability need.
+
+## Implemented Receipt v2
+
+The shipped receipt contract commits to:
+
+- the exact normalized input through `input_hash`;
+- action, grant, decision, policy, and payload digests;
+- the provider result and one immediate signal;
+- enqueue and processing spans under one trace identifier;
+- an Ed25519 signature from a workspace-scoped key; and
+- strict schemas with unknown fields rejected.
+
+`receiptSigningBytes()` signs canonical JSON with the signature envelope removed. `validateReceiptChain()` checks cross-object digests, workspace integrity, and signature-domain consistency. Cryptographic verification and storage remain host responsibilities.
 
 ## Why Receipts Exist
 
@@ -13,7 +28,7 @@ Every agent product needs an audit trail. Without a shared receipt shape, each a
 - Users get one audit trail for agent-mediated actions.
 - Future federation can share evidence across products with explicit consent.
 
-## Minimal Shape
+## Earlier Federation Sketch
 
 ```json
 {
@@ -41,7 +56,7 @@ Every agent product needs an audit trail. Without a shared receipt shape, each a
 }
 ```
 
-## Package Sketch
+## Future Storage Package Sketch
 
 ```js
 import { ReceiptStore } from "@trust-graduation/receipts";
@@ -75,4 +90,4 @@ Do not ship `@trust-graduation/receipts` until:
 - Mission emits receipts internally in a way that maps cleanly to the schema.
 - One external partner wants receipt emission or consumption enough to review the schema.
 
-Until then, the only artifact is the schema preview at `schemas/v2/receipts.schema.json`.
+Until then, the public interoperability artifacts are the receipt v2 schema and conformance code in `packages/mission-schemas`; `schemas/v2/receipts.schema.json` remains the earlier federation sketch and is not the current execution-receipt shape.

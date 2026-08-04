@@ -1,0 +1,20 @@
+{
+  "note": "Adversarial fixture: signal must be one of the six v1 vocabulary values. 'contract_closed' is deliberately excluded from v1 (chained outcomes are v2 territory) and must be rejected with enum.",
+  "outcome": {
+    "schema": "mission-outcome/v1",
+    "outcome_id": "outcome-adversarial-unknown-signal",
+    "receipt_id": "receipt-abcdef1234567890abcd",
+    "grant_id": "grant-1234567890abcdef1234",
+    "workspace_id": "wkspc-abc123def456",
+    "observed_at": "2026-07-13T09:15:00.000Z",
+    "signal": "contract_closed",
+    "evidence": {},
+    "signature": {
+      "algorithm": "ed25519",
+      "version": "v1",
+      "key_id": "wkspc-abc123def456:key-1234567890ab",
+      "value": "AAAAaGVsbG8gb3V0Y29tZSBzaWduYXR1cmUgZXhhbXBsZSBieXRlcw==",
+      "signed_at": "2026-07-13T09:15:00.000Z"
+    }
+  }
+}

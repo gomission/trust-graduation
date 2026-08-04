@@ -1,0 +1,11 @@
+{
+  "_expects_error": "const",
+  "_reason": "Rejects a signature envelope declaring an algorithm other than ed25519. Prevents downgrade attacks masquerading as Trust Graduation signatures.",
+  "signature": {
+    "algorithm": "rsa-pss",
+    "version": "v1",
+    "key_id": "wkspc-abc123def456:key-1234567890ab",
+    "value": "AAAA",
+    "signed_at": "2026-07-11T20:02:00.000Z"
+  }
+}

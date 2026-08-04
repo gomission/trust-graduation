@@ -91,7 +91,7 @@ Trust Graduation v0.1 centers on five objects:
 - `ApprovalPacket`
 - `ExecutionReceipt`
 
-The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloads now. v1 receipt schemas define the audit hook; cryptographic receipt chains remain forward design.
+The runtime package emits `Decision` objects and bounded `ApprovalPacket` payloads. The repository also ships the current Mission Gate conformance package, `@gomission/mission-schemas`: receipt v2 uses deterministic canonical JSON, exact-input SHA-256 commitments, Ed25519 workspace signatures, and trace correlation. Receipt federation remains future work; signed local receipts are implemented and tested.
 
 Mission's current implementation profile is documented in [docs/mission-reference-profile.md](docs/mission-reference-profile.md). It shows how a production workspace maps steward moves, approval packets, receipts, attributed outcomes, proof reports, workflow installation, and model-routing telemetry onto this protocol without expanding the portable v0.1 object model.
 
@@ -108,7 +108,8 @@ Mission's current implementation profile is documented in [docs/mission-referenc
 
 - `src/` — zero-dependency JavaScript reference implementation.
 - `schemas/v1/` — JSON schemas for action classes, evidence, decisions, approval packets, receipts, and license entitlements.
-- `schemas/v2/receipts.schema.json` — forward-design preview for the receipts primitive.
+- `schemas/v2/receipts.schema.json` — earlier federation/storage sketch, retained for design history; it is not the current execution-receipt shape.
+- `packages/mission-schemas/` — the current zero-dependency schema vocabulary, canonicalization helpers, signed receipt v2 contract, conformance CLI, and positive/adversarial fixtures used by Mission Gate.
 - `docs/spec-overview.md` — portable protocol overview.
 - `docs/spec-deep-dive.md` — protocol objects, lifecycle, regression, and conformance guidance.
 - `docs/receipts-forward-design.md` — storage-agnostic receipts direction.
@@ -147,9 +148,11 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Package status: `0.1.0-alpha.8`.
+Core package status: `0.2.0-beta.1`.
 
-Schema status: draft `schemas/v1/`.
+Portable protocol schema status: draft `schemas/v1/`.
+
+Mission Gate conformance status: `@gomission/mission-schemas` `0.1.0`, including `mission-decision/v2`, `mission-execution-receipt/v2`, `mission-outcome/v1`, signature envelopes, public-key manifests, and authority-interruption records.
 
 Schemas describe the protocol shape. The package is the JavaScript reference implementation. Schemas reach stable `v1.0` after outside implementations validate the object model and no breaking schema changes are required for a sustained period.
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0-beta.1 — 2026-08-04
+
+- Promoted the JavaScript core from alpha to beta without changing the v0.1 portable decision contract.
+- Added `packages/mission-schemas` as the canonical public source for Mission Gate's current protocol vocabulary and conformance CLI.
+- Documented shipped receipt v2 behavior: deterministic canonicalization, exact-input and cross-object digests, Ed25519 workspace signatures, trace correlation, outcome attribution, and authority interruptions.
+- Added positive and adversarial fixtures for the current schemas and cross-object conformance rules.
+- Reframed receipt federation as future design while accurately marking local signed receipts as implemented.
+
 ## 0.1.0-alpha.8
 
 - Added the Mission reference implementation profile for steward moves, approval-gated workflow installation, receipts, attributed outcomes, proof reports, and model-routing telemetry.

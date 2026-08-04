@@ -1,0 +1,9 @@
+{
+  "schema": "mission-authority-interruption/v1",
+  "execution_id": "exec-mrgoyv8w-012f6e565f",
+  "grant_id": "grant-1234567890abcdef1234",
+  "capability": "email.send.external",
+  "target": "person@example.com",
+  "trace_id": "0af7651916cd43dd8448eb211c80319c",
+  "paused_at": "2026-07-11T20:01:30.000Z"
+}

@@ -1,0 +1,49 @@
+{
+  "name": "@gomission/mission-schemas",
+  "version": "0.1.0",
+  "description": "Protocol vocabulary, JSON Schema Draft 2020-12 definitions, canonical action-class taxonomy, deterministic canonicalization rules, and zero-dependency conformance CLI for the open Trust Graduation protocol.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "homepage": "https://trustgraduation.org/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gomission/trust-graduation.git",
+    "directory": "packages/mission-schemas"
+  },
+  "bugs": {
+    "url": "https://github.com/gomission/trust-graduation/issues"
+  },
+  "keywords": [
+    "trust-graduation",
+    "grant-decision-receipt",
+    "action-class",
+    "json-schema",
+    "canonical-json",
+    "receipt-signing",
+    "protocol",
+    "mission",
+    "gomission"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "./src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./schemas/*": "./src/schemas/*",
+    "./fixtures/*": "./fixtures/*"
+  },
+  "bin": {
+    "mission-schemas-conform": "./bin/mission-schemas-conform.mjs"
+  },
+  "files": [
+    "src/",
+    "bin/",
+    "fixtures/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "note": "Adversarial fixture: outcomes must reference the receipt they resolve. Removing receipt_id must be rejected with required. This prevents orphaned outcomes that cannot be joined back to an attested action.",
+  "outcome": {
+    "schema": "mission-outcome/v1",
+    "outcome_id": "outcome-adversarial-missing-receipt-id",
+    "grant_id": "grant-1234567890abcdef1234",
+    "workspace_id": "wkspc-abc123def456",
+    "observed_at": "2026-07-13T09:15:00.000Z",
+    "signal": "no_response",
+    "evidence": { "window_hours": 72 },
+    "signature": {
+      "algorithm": "ed25519",
+      "version": "v1",
+      "key_id": "wkspc-abc123def456:key-1234567890ab",
+      "value": "AAAAaGVsbG8gb3V0Y29tZSBzaWduYXR1cmUgZXhhbXBsZSBieXRlcw==",
+      "signed_at": "2026-07-13T09:15:00.000Z"
+    }
+  }
+}

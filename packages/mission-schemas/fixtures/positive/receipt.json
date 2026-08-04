@@ -1,0 +1,33 @@
+{
+  "schema": "mission-execution-receipt/v2",
+  "receipt_id": "receipt-abcdef1234567890abcd",
+  "execution_id": "exec-mrgoyv8w-012f6e565f",
+  "grant_id": "grant-1234567890abcdef1234",
+  "workspace_id": "wkspc-abc123def456",
+  "capability": "email.send.external",
+  "target": "person@example.com",
+  "input_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "status": "completed",
+  "immediate_signal": "email_sent",
+  "result": { "gmail_message_id": "msg-42", "gmail_thread_id": "thread-7" },
+  "digests": {
+    "action":   "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "grant":    "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "decision": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "policy":   "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+    "payload":  "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "trace_context": {
+    "trace_id": "0af7651916cd43dd8448eb211c80319c",
+    "enqueue_span_id": "b7ad6b7169203331",
+    "process_span_id": "4c3f47a9c2e6f8ed"
+  },
+  "completed_at": "2026-07-11T20:02:00.000Z",
+  "signature": {
+    "algorithm": "ed25519",
+    "version": "v1",
+    "key_id": "wkspc-abc123def456:key-1234567890ab",
+    "value": "AAAAaGVsbG8gd29ybGQgc2lnbmF0dXJlIGV4YW1wbGUgYnl0ZXM=",
+    "signed_at": "2026-07-11T20:02:00.000Z"
+  }
+}

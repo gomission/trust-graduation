@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-decision/v2.json",
+  "title": "Mission Decision v2",
+  "description": "A separately committed, authenticated, signed principal decision bound to one exact grant, target, and input digest.",
+  "type": "object",
+  "required": ["schema", "decision_id", "outcome", "grant_id", "execution_id", "workspace_id", "capability", "target", "input_hash", "approval", "principal", "nonce", "decided_at", "expires_at", "source", "authentication", "signature"],
+  "properties": {
+    "schema": { "const": "mission-decision/v2" },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "outcome": { "type": "string", "enum": ["approved", "rejected"] },
+    "grant_id": { "type": "string", "minLength": 1 },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "target": { "type": "string" },
+    "input_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "approval": { "type": "string", "minLength": 1 },
+    "principal": { "type": "string", "minLength": 1 },
+    "nonce": { "type": "string", "minLength": 16 },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "source": { "type": "string", "minLength": 1 },
+    "authentication": {
+      "type": "object",
+      "required": ["method", "credential_id", "verified_at", "proof_digest"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "credential_id": { "type": "string", "minLength": 1 },
+        "verified_at": { "type": "string", "format": "date-time" },
+        "proof_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "signature": { "$ref": "https://schemas.gomission.io/mission-receipt-signature/v1.json" }
+  },
+  "additionalProperties": false
+}

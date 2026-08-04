@@ -1,0 +1,9 @@
+{
+  "schema": "mission-capability-policy/v1",
+  "capability": "email.send.external",
+  "max_executions": 1,
+  "default_expiry_seconds": 600,
+  "risk_class": "external_consequence",
+  "approval": "face_id_and_exact_preview",
+  "external_side_effects": "email_send"
+}

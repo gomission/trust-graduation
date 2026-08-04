@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-grant/v1.json",
+  "title": "Mission Grant",
+  "description": "A single-use, workspace-scoped, expiring authorization to perform an exact action against an exact target. Consumed at most once.",
+  "type": "object",
+  "required": ["schema", "grant_id", "workspace_id", "capability", "target", "input_hash", "lifetime", "max_executions", "execution_count", "created_at", "expires_at", "revocable"],
+  "properties": {
+    "schema": { "const": "mission-grant/v1" },
+    "grant_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "target": { "type": "string" },
+    "input_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "lifetime": { "type": "string", "enum": ["single_action"] },
+    "max_executions": { "type": "integer", "minimum": 1 },
+    "execution_count": { "type": "integer", "minimum": 0 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "revocable": { "type": "boolean" },
+    "revoked_at": { "type": "string" },
+    "source": { "type": "string" }
+  },
+  "additionalProperties": false
+}

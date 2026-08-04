@@ -1,0 +1,7 @@
+{
+  "algorithm": "ed25519",
+  "version": "v1",
+  "key_id": "wkspc-abc123def456:key-1234567890ab",
+  "value": "AAAAaGVsbG8gd29ybGQgc2lnbmF0dXJlIGV4YW1wbGUgYnl0ZXM=",
+  "signed_at": "2026-07-11T20:02:00.000Z"
+}

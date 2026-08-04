@@ -20,7 +20,7 @@ Mission adds product-level objects around that boundary. Steward moves, goals, w
 | --- | --- | --- |
 | Steward move | Proposed action plus action class | Preparation is not execution and earns no outcome credit by itself. |
 | Review queue or approval packet | `ApprovalPacket` | Approval is bounded to the proposed action, principal, constraints, and expiry. |
-| Receipt | `ExecutionReceipt` | Records what actually happened; waiting, blocked, prepared, and completed remain distinct. |
+| Receipt | `ExecutionReceipt` | `mission-execution-receipt/v2` records one completed execution with exact-input and cross-object digests, trace context, provider result, immediate signal, and an Ed25519 workspace signature. Waiting, blocked, and prepared are not completion receipts. |
 | Attributed outcome | `EvidenceEvent` linked to a move or receipt | Strong deterministic matches may resolve automatically; fuzzy matches require human selection; unresolved outcomes remain explicit orphans. |
 | Steward calibration | Evidence aggregation by action class, track, or score bucket | Buckets below the configured minimum sample count are marked insufficient evidence and are not ranked. |
 | Mission proof report | Human-readable provenance summary | Reports attributed outcomes divided by Mission-prepared moves and does not claim credit for untracked manual work. |
@@ -54,7 +54,7 @@ goal or signal
   -> bounded graduation or regression
 ```
 
-Mission stores this evidence locally in inspectable files and exposes selected read-first views through CLI, web, MCP, ChatGPT, Claude, and native app surfaces. Other implementations may use databases or remote services as long as they preserve the protocol objects, provenance, and approval semantics.
+Mission stores this evidence locally in inspectable files and exposes selected read-first views through CLI, web, MCP, ChatGPT, Claude, and native app surfaces. Mission Gate's current machine-readable vocabulary is published in `packages/mission-schemas`, including decision v2, signed receipt v2, attributed outcomes, authority interruptions, and public-key manifests. Other implementations may use databases or remote services as long as they preserve the protocol objects, provenance, and approval semantics.
 
 ## Non-Claims
 

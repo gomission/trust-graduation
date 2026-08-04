@@ -1,0 +1,22 @@
+{
+  "schema": "mission-outcome/v1",
+  "outcome_id": "outcome-abcdef1234567890abcd",
+  "receipt_id": "receipt-abcdef1234567890abcd",
+  "grant_id": "grant-1234567890abcdef1234",
+  "workspace_id": "wkspc-abc123def456",
+  "observed_at": "2026-07-13T09:15:00.000Z",
+  "signal": "responded",
+  "evidence": {
+    "gmail_reply_message_id": "msg-84",
+    "gmail_thread_id": "thread-7",
+    "in_reply_to": "msg-42",
+    "detector": "gmail-thread-poll"
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "version": "v1",
+    "key_id": "wkspc-abc123def456:key-1234567890ab",
+    "value": "AAAAaGVsbG8gb3V0Y29tZSBzaWduYXR1cmUgZXhhbXBsZSBieXRlcw==",
+    "signed_at": "2026-07-13T09:15:00.000Z"
+  }
+}

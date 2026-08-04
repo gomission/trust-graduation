@@ -1,0 +1,27 @@
+{
+  "_expects_error": "pattern",
+  "_reason": "Rejects a digest that does not match the sha256:<64 hex> shape. Prevents accidentally accepting truncated or algorithm-mismatched hashes.",
+  "receipt": {
+    "schema": "mission-execution-receipt/v2",
+    "receipt_id": "receipt-abcdef1234567890abcd",
+    "execution_id": "exec-mrgoyv8w-012f6e565f",
+    "grant_id": "grant-1234567890abcdef1234",
+    "workspace_id": "wkspc-abc123def456",
+    "capability": "email.send.external",
+    "target": "person@example.com",
+    "input_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "status": "completed",
+    "immediate_signal": "email_sent",
+    "result": {},
+    "digests": {
+      "action":   "sha256:1111",
+      "grant":    "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "decision": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "policy":   "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "payload":  "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "trace_context": { "trace_id": "", "enqueue_span_id": "", "process_span_id": "" },
+    "completed_at": "2026-07-11T20:02:00.000Z",
+    "signature": { "algorithm": "ed25519", "version": "v1", "key_id": "wkspc-abc123def456:key-1234567890ab", "value": "AAAA", "signed_at": "2026-07-11T20:02:00.000Z" }
+  }
+}
