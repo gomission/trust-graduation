@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-decision/v1.json",
+  "title": "Mission Decision",
+  "description": "A recorded human or paired-device decision that approves an action to run under a specific grant. Hashed into the receipt to attest that the approval preceded execution.",
+  "type": "object",
+  "required": ["schema", "grant_id", "execution_id", "workspace_id", "capability", "approval", "decided_at"],
+  "properties": {
+    "schema": { "const": "mission-decision/v1" },
+    "grant_id": { "type": "string", "minLength": 1 },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "approval": { "type": "string", "minLength": 1 },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "source": { "type": "string" }
+  },
+  "additionalProperties": false
+}

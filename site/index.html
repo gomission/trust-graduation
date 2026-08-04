@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trust Graduation Protocol</title>
+  <meta name="description" content="Trust Graduation is a permission protocol for agentic systems. Agents earn permission per action class through evidence, approval packets, and receipts.">
+  <meta name="author" content="Ronen Tanchum">
+  <meta name="application-name" content="Trust Graduation Protocol">
+  <meta name="keywords" content="Trust Graduation, agent permissions, AI agents, agent governance, approval packets, receipts, provenance, capability security, MCP, autonomous agents">
+  <meta name="robots" content="index,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <link rel="canonical" href="https://trustgraduation.org/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Trust Graduation Protocol">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Trust Graduation Protocol">
+  <meta property="og:description" content="A permission protocol for agentic systems. Agents earn permission per action class through evidence, approval, and receipts.">
+  <meta property="og:url" content="https://trustgraduation.org/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:domain" content="trustgraduation.org">
+  <meta name="twitter:url" content="https://trustgraduation.org/">
+  <meta name="twitter:title" content="Trust Graduation Protocol">
+  <meta name="twitter:description" content="A permission protocol for agentic systems. Earn permission per action class.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="Trust Graduation agent crawler brief">
+  <link rel="alternate" type="application/json" href="/.well-known/trust-graduation" title="Trust Graduation discovery manifest">
+  <link rel="author" href="/humans.txt">
+  <link rel="help" href="/spec/0.1/">
+  <link rel="alternate" type="application/json" href="/spec/0.1/action-class.schema.json" title="Trust Graduation action-class schema">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css?v=20260804">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E42NBFMTX8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E42NBFMTX8');
+  </script>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('tg-theme');
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    })();
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://trustgraduation.org/#website","name":"Trust Graduation Protocol","url":"https://trustgraduation.org/","description":"A permission protocol for agentic systems."},{"@type":"Organization","@id":"https://trustgraduation.org/#publisher","name":"Trust Graduation Protocol","url":"https://trustgraduation.org/","sameAs":["https://github.com/gomission/trust-graduation","https://www.npmjs.com/package/@trust-graduation/core","https://gomission.io"]},{"@type":"Person","@id":"https://trustgraduation.org/#ronen-tanchum","name":"Ronen Tanchum","url":"https://gomission.io"},{"@type":"TechArticle","@id":"https://trustgraduation.org/#protocol","headline":"Trust Graduation Protocol","name":"Trust Graduation Protocol","description":"A permission protocol for agentic systems. Gates actions by consequence using evidence, approval packets, and receipts.","url":"https://trustgraduation.org/","version":"0.1","dateModified":"2026-08-04","author":{"@id":"https://trustgraduation.org/#ronen-tanchum"},"publisher":{"@id":"https://trustgraduation.org/#publisher"},"about":["AI agents","agent governance","permission protocol","capability-based security","provenance","approval packets","receipts"],"isPartOf":{"@id":"https://trustgraduation.org/#website"}}]}</script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="wordmark" href="/">
+        <span class="glyph" aria-hidden="true"><span></span></span>
+        Trust Graduation
+      </a>
+      <nav>
+        <a href="/spec/0.1/">Spec</a>
+        <a href="/profiles/mission-gate/0.2/">Gate profile</a>
+        <a href="#implementations">Implementations</a>
+        <a href="https://github.com/gomission/trust-graduation" rel="noopener">GitHub</a>
+        <a href="https://www.npmjs.com/package/@trust-graduation/core" rel="noopener">npm</a>
+        <span class="version">v0.1 · draft</span>
+        <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Toggle theme">Theme</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <article class="page">
+      <div class="titleblock">
+        <span class="eyebrow">Specification</span>
+        <h1>Trust Graduation Protocol</h1>
+        <p class="lede">A permission protocol for agentic systems. Agents earn permission per action class through evidence, approval packets, and receipts.</p>
+        <div class="meta">
+          <span><strong>Version</strong> 0.1</span>
+          <span><strong>Status</strong> Draft</span>
+          <span><strong>Updated</strong> August 2026</span>
+          <span><strong>License</strong> Public protocol</span>
+        </div>
+      </div>
+
+      <div class="abstract">
+        <span class="label">Abstract</span>
+        Most agent frameworks gate actions by tool name. Trust Graduation gates actions by <em>consequence</em>. A useful agent may be safe to observe, draft, and prepare work long before it should send email, post publicly, spend money, or mutate production state. The protocol defines ten canonical action classes, six decision states, an evidence model with explicit provenance, a Beta-distributed posterior with calibrated credible intervals, and a receipt format suitable for hash-chained audit. v0.1 is a draft. Implementations are encouraged; breaking changes are expected before v1.
+      </div>
+
+      <div class="cta-row">
+        <a class="cta" href="/spec/0.1/">Read the v0.1 spec <span class="arrow">→</span></a>
+        <a class="cta secondary" href="https://www.npmjs.com/package/@trust-graduation/core" rel="noopener">npm @trust-graduation/core <span class="arrow">↗</span></a>
+        <a class="cta secondary" href="https://github.com/gomission/trust-graduation" rel="noopener">Reference repo <span class="arrow">↗</span></a>
+      </div>
+
+      <div class="section-divider"><span class="label">Current code</span></div>
+      <h2 id="current-code">Signed receipt v2 is implemented<a class="permalink" href="#current-code">¶</a></h2>
+      <p>The portable v0.1 method remains a draft. Mission Gate's current beta implementation now has its own explicit conformance profile: exact-input commitments, deterministic canonical JSON, cross-object SHA-256 digests, Ed25519 workspace signatures, trace correlation, attributed outcomes, and authority-interruption records.</p>
+      <p>Preparation, approval, and a completed external effect remain different events. A v2 execution receipt may be emitted only after execution completes; queued or prepared work is not proof of completion.</p>
+      <div class="cta-row">
+        <a class="cta" href="/profiles/mission-gate/0.2/">Read the Mission Gate 0.2 profile <span class="arrow">→</span></a>
+        <a class="cta secondary" href="https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas" rel="noopener">Schemas and conformance <span class="arrow">↗</span></a>
+      </div>
+
+      <div class="section-divider"><span class="label">§ 1</span></div>
+      <h2 id="primitives"><span class="section-num">1.</span>Three primitives<a class="permalink" href="#primitives">¶</a></h2>
+      <p>An implementation should expose three operations. Names are conventional; semantics are normative.</p>
+      <dl class="dlist">
+        <div>
+          <dt>canExecute(actionClass, context)</dt>
+          <dd>Returns one of six decision states from evidence, reversibility, and approval state. Decisions are gates; they never have side effects.</dd>
+        </div>
+        <div>
+          <dt>prepareApprovalPacket(...)</dt>
+          <dd>Produces a local packet with the proposed action, evidence, gate decision, and <code>external_actions: 0</code>. Preparing work is not executing it.</dd>
+        </div>
+        <div>
+          <dt>recordReceipt(...)</dt>
+          <dd>Writes a receipt for the outcome — approve, refuse, correct, or execute. Receipts feed the posterior for the action class.</dd>
+        </div>
+      </dl>
+
+      <div class="section-divider"><span class="label">§ 2</span></div>
+      <h2 id="states"><span class="section-num">2.</span>Six decision states<a class="permalink" href="#states">¶</a></h2>
+      <p>A decision is the gate's verdict for a proposed action. Implementations MUST emit one of six states.</p>
+      <table>
+        <thead>
+          <tr><th>State</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>allowed</code></td><td>Execution may proceed.</td></tr>
+          <tr><td><code>allowed_with_constraints</code></td><td>Post-approval execution boundary scoped by machine-evaluable constraints.</td></tr>
+          <tr><td><code>review_required</code></td><td>Prepare an approval packet; do not execute externally.</td></tr>
+          <tr><td><code>deferred</code></td><td>Queued for asynchronous approval; do not execute externally.</td></tr>
+          <tr><td><code>blocked</code></td><td>Not permitted under current policy or evidence.</td></tr>
+          <tr><td><code>human_only</code></td><td>Only the principal may perform this action.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-divider"><span class="label">§ 3</span></div>
+      <h2 id="classes"><span class="section-num">3.</span>Ten canonical action classes<a class="permalink" href="#classes">¶</a></h2>
+      <p>The trust unit is the action class. Evidence for <code>draft.compose</code> does not imply permission for <code>email.send.external</code>. The v0.1 registry:</p>
+      <table>
+        <thead>
+          <tr><th>Identifier</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>read.context</code></td><td>internal</td><td>Read, search, inspect, summarize, or rank context.</td></tr>
+          <tr><td><code>draft.compose</code></td><td>internal</td><td>Compose a new local draft.</td></tr>
+          <tr><td><code>draft.response</code></td><td>internal</td><td>Compose a reply or response draft.</td></tr>
+          <tr><td><code>tool.call.local</code></td><td>internal</td><td>Call a local tool without external effect.</td></tr>
+          <tr><td><code>email.send.internal</code></td><td>external controlled</td><td>Send to an established or known recipient.</td></tr>
+          <tr><td><code>email.send.external</code></td><td>external</td><td>Send to a non-established recipient or outside party.</td></tr>
+          <tr><td><code>calendar.create</code></td><td>external controlled</td><td>Create, update, or invite through a calendar system.</td></tr>
+          <tr><td><code>social.post.public</code></td><td>external</td><td>Publish to a public social channel.</td></tr>
+          <tr><td><code>payment.initiate</code></td><td>human-only</td><td>Initiate a payment, charge, purchase, or transfer.</td></tr>
+          <tr><td><code>proposal.submit</code></td><td>external</td><td>Submit a proposal, bid, application, or commitment.</td></tr>
+        </tbody>
+      </table>
+      <p>Implementations MAY add local classes, but MUST preserve the same decision, evidence, posterior, and receipt semantics.</p>
+
+      <div class="section-divider"><span class="label">§ 4</span></div>
+      <h2 id="evidence"><span class="section-num">4.</span>Evidence carries provenance<a class="permalink" href="#evidence">¶</a></h2>
+      <p>Evidence has two axes. The composed weight per evidence row is the product:</p>
+      <pre><code>evidence_weight = decision_weight × provenance_weight</code></pre>
+      <p>Provenance is normative because a model-inferred outcome should not move the posterior as much as a recorded approval. Default provenance weights:</p>
+      <table>
+        <thead>
+          <tr><th>Source type</th><th class="num">Weight</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>receipt</code></td><td class="num">1.00</td><td>A recorded approval, refusal, correction, or execution receipt.</td></tr>
+          <tr><td><code>principal</code></td><td class="num">1.00</td><td>Direct instruction or correction from the principal.</td></tr>
+          <tr><td><code>connector</code></td><td class="num">0.30</td><td>Data from an external connector or imported system.</td></tr>
+          <tr><td><code>model_inferred</code></td><td class="num">0.10</td><td>Inference made by a model without direct receipt or connector grounding.</td></tr>
+        </tbody>
+      </table>
+      <p>Implementations MAY learn weights per workspace and action class, but MUST NOT silently upgrade <code>model_inferred</code> evidence to receipt-grade evidence.</p>
+
+      <div class="section-divider"><span class="label">§ 5</span></div>
+      <h2 id="posterior"><span class="section-num">5.</span>Posterior with calibrated intervals<a class="permalink" href="#posterior">¶</a></h2>
+      <p>Trust Graduation computes a Beta posterior over approval probability per action class. Default prior <code>Beta(2, 2)</code>; positive evidence adds <code>|evidence_weight|</code> to <code>α</code>, negative to <code>β</code>. Implementations compute mean, 95% credible interval, sample count, tier, and a recommendation flag. Default graduation thresholds:</p>
+      <table>
+        <thead>
+          <tr><th>Action class</th><th class="num"><code>ci_low_min</code></th><th class="num"><code>samples_min</code></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>default</td><td class="num">0.80</td><td class="num">10</td></tr>
+          <tr><td><code>draft.compose</code></td><td class="num">0.80</td><td class="num">10</td></tr>
+          <tr><td><code>email.send.external</code></td><td class="num">0.92</td><td class="num">30</td></tr>
+          <tr><td><code>calendar.create</code></td><td class="num">0.88</td><td class="num">20</td></tr>
+        </tbody>
+      </table>
+      <p>External-effect classes MUST NOT auto-promote to ungated external execution from the posterior alone. The posterior recommends; the gate authorizes.</p>
+
+      <div class="section-divider"><span class="label">§ 6</span></div>
+      <h2 id="agent-discovery"><span class="section-num">6.</span>Agent discovery<a class="permalink" href="#agent-discovery">¶</a></h2>
+      <p>Protocol-aware agents should not have to infer the trust boundary from prose. A host can publish <code>/.well-known/trust-graduation</code> to declare the supported protocol version, schemas, action classes, decision states, and runtime guidance.</p>
+      <p>When a proposed action is not executable, the decision can include <code>graduationPath</code>: a structured next step such as prepare an approval packet, request principal approval, collect receipts, reduce scope, run a dry run, or stop. This is the key agent-native affordance: denial becomes a safe route to earned authority, not a dead end to work around.</p>
+      <div class="schema-list">
+        <a href="/.well-known/trust-graduation">/.well-known/trust-graduation<span class="desc">Machine-readable discovery manifest</span></a>
+        <a href="/llms.txt">llms.txt<span class="desc">Crawler and agent guidance</span></a>
+      </div>
+
+      <div class="section-divider"><span class="label">§ 7</span></div>
+      <h2 id="schemas"><span class="section-num">7.</span>Schemas<a class="permalink" href="#schemas">¶</a></h2>
+      <p>JSON Schema (draft 2020-12) for every protocol artifact. <code>$id</code> URLs resolve to the file you are about to download.</p>
+      <div class="schema-list">
+        <a href="/spec/0.1/action-class.schema.json">action-class.schema.json<span class="desc">Registry row for one action class</span></a>
+        <a href="/spec/0.1/decision.schema.json">decision.schema.json<span class="desc">Gate verdict, with constraint vocabulary</span></a>
+        <a href="/spec/0.1/approval-packet.schema.json">approval-packet.schema.json<span class="desc">Prepare-only review packet</span></a>
+        <a href="/spec/0.1/receipt.schema.json">receipt.schema.json<span class="desc">Outcome record, hash-chain ready</span></a>
+        <a href="/spec/0.1/evidence-row.schema.json">evidence-row.schema.json<span class="desc">One observation feeding the posterior</span></a>
+        <a href="/spec/0.1/posterior.schema.json">posterior.schema.json<span class="desc">Computed Beta posterior per action class</span></a>
+      </div>
+
+      <div class="section-divider"><span class="label">§ 8</span></div>
+      <h2 id="implementations"><span class="section-num">8.</span>Implementations<a class="permalink" href="#implementations">¶</a></h2>
+      <p>The protocol is small enough to reimplement in a day. v0.1 reference implementations:</p>
+      <div class="impl-grid">
+        <div class="impl-card">
+          <h3>@trust-graduation/core</h3>
+          <p>Minimal JavaScript reference. The three primitives, the canonical registry, evidence classification.</p>
+          <div class="impl-meta">npm · 0.2.0-beta.1 source prepared</div>
+        </div>
+        <div class="impl-card">
+          <h3>Mission</h3>
+          <p>Commercial reference runtime: approval gating, signed receipt v2, trace correlation, attributed outcomes, and authority interruption.</p>
+          <div class="impl-meta"><a href="https://gomission.io" rel="noopener">gomission.io ↗</a></div>
+        </div>
+        <div class="impl-card">
+          <h3>Your runtime</h3>
+          <p>Implement <code>canExecute</code>, <code>prepareApprovalPacket</code>, <code>recordReceipt</code>. Emit conforming JSON. Open a PR to be listed here.</p>
+          <div class="impl-meta">github.com/gomission/trust-graduation</div>
+        </div>
+      </div>
+
+      <div class="section-divider"><span class="label">§ 9</span></div>
+      <h2 id="why"><span class="section-num">9.</span>Why this exists<a class="permalink" href="#why">¶</a></h2>
+      <p>Binary agent permission is too crude. A model that may safely summarize a thread should not, by virtue of holding a tool handle, be free to send the resulting message. The shift Trust Graduation operationalizes is from <em>"is the model truthful?"</em> to <em>"who authorized the action?"</em> — and to make that question answerable at runtime, in audit, and across vendors.</p>
+      <p>The protocol draws on capability-based security (POLA), W3C PROV-O for provenance, and Bayesian evidence updates for graduation. It maps cleanly onto NIST AI RMF, NIST AI 600-1, ISO/IEC 42001, and EU AI Act Article 14 — those mappings are informational appendices in the spec, not requirements for conformance.</p>
+      <p>v0.1 is the first publication. The protocol expects to learn from external implementers. If something is wrong, file an issue; if something is missing, propose it.</p>
+
+      <div class="cta-row">
+        <a class="cta" href="/spec/0.1/">Read the v0.1 spec <span class="arrow">→</span></a>
+        <a class="cta secondary" href="https://github.com/gomission/trust-graduation/issues" rel="noopener">Open an issue <span class="arrow">↗</span></a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div>Trust Graduation Protocol · v0.1 draft · Public protocol</div>
+      <div>
+        <a href="/spec/0.1/">Spec</a> ·
+        <a href="https://github.com/gomission/trust-graduation" rel="noopener">GitHub</a> ·
+        <a href="https://www.npmjs.com/package/@trust-graduation/core" rel="noopener">npm</a> ·
+        <a href="/llms.txt">llms.txt</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var current = document.documentElement.dataset.theme;
+        var next;
+        if (!current) {
+          var prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          next = prefers ? 'light' : 'dark';
+        } else {
+          next = current === 'dark' ? 'light' : 'dark';
+        }
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('tg-theme', next); } catch (e) {}
+      });
+    })();
+  </script>
+  <!-- Default Statcounter code for trustgraduation.org
+  https://trustgraduation.org/ -->
+  <script type="text/javascript">
+  var sc_project=13295612;
+  var sc_invisible=1;
+  var sc_security="241819da";
+  </script>
+  <script type="text/javascript"
+  src="https://www.statcounter.com/counter/counter.js"
+  async></script>
+  <noscript><div class="statcounter"><a title="Web Analytics
+  Made Easy - Statcounter" href="https://statcounter.com/"
+  target="_blank"><img class="statcounter"
+  src="https://c.statcounter.com/13295612/0/241819da/1/"
+  alt="Web Analytics Made Easy - Statcounter"
+  referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
+  <!-- End of Statcounter Code -->
+</body>
+</html>

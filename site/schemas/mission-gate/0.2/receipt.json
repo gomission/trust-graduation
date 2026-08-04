@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-execution-receipt/v2.json",
+  "title": "Mission Execution Receipt (v2, signed and trace-correlated)",
+  "description": "Attests that the exact workspace key signed that the exact action executed under the exact decision, grant, policy, and payload, producing this provider result.",
+  "type": "object",
+  "required": ["schema", "receipt_id", "execution_id", "grant_id", "workspace_id", "capability", "target", "input_hash", "status", "immediate_signal", "result", "digests", "trace_context", "completed_at", "signature"],
+  "properties": {
+    "schema": { "const": "mission-execution-receipt/v2" },
+    "receipt_id": { "type": "string", "minLength": 1 },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "grant_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "target": { "type": "string" },
+    "input_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "status": { "type": "string", "enum": ["completed"] },
+    "immediate_signal": { "type": "string", "minLength": 1 },
+    "result": { "type": "object" },
+    "digests": {
+      "type": "object",
+      "required": ["action", "grant", "decision", "policy", "payload"],
+      "properties": {
+        "action":   { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "grant":    { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "decision": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "policy":   { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "payload":  { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "trace_context": {
+      "type": "object",
+      "required": ["trace_id", "enqueue_span_id", "process_span_id"],
+      "properties": {
+        "trace_id":        { "type": "string" },
+        "enqueue_span_id": { "type": "string" },
+        "process_span_id": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "signature": { "$ref": "https://schemas.gomission.io/mission-receipt-signature/v1.json" }
+  },
+  "additionalProperties": false
+}

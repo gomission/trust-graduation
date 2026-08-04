@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-outcome/v1.json",
+  "title": "Mission Outcome (v1, signed sibling of a receipt)",
+  "description": "Records a locally observable, recipient-derivable signal that resolves the effect of an executed action. Outcomes append; they never mutate the receipt they resolve.",
+  "type": "object",
+  "required": ["schema", "outcome_id", "receipt_id", "grant_id", "workspace_id", "observed_at", "signal", "evidence", "signature"],
+  "properties": {
+    "schema": { "const": "mission-outcome/v1" },
+    "outcome_id": { "type": "string", "minLength": 1 },
+    "receipt_id": { "type": "string", "minLength": 1 },
+    "grant_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "signal": {
+      "type": "string",
+      "enum": [
+        "next_step_scheduled",
+        "responded",
+        "bounced",
+        "revoked_before_send",
+        "no_response",
+        "unknown"
+      ]
+    },
+    "evidence": { "type": "object" },
+    "observation_window_closed_at": { "type": "string", "format": "date-time" },
+    "superseded_by": { "type": "string", "minLength": 1 },
+    "signature": { "$ref": "https://schemas.gomission.io/mission-receipt-signature/v1.json" }
+  },
+  "additionalProperties": false
+}

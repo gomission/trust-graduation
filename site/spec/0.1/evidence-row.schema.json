@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/spec/0.1/evidence-row.schema.json",
+  "title": "Trust Graduation Evidence Row",
+  "description": "One observed event that contributes to the posterior of one action class. Trust Graduation Protocol v0.1, section 4.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["action_class", "label", "date"],
+  "properties": {
+    "action_class": {
+      "type": "string",
+      "description": "Canonical lowercase dot-notation identifier for the action category. Producers MUST canonicalize legacy identifiers (per protocol §2) before validating against this schema.",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$",
+      "examples": [
+        "draft.compose",
+        "draft.response",
+        "read.context",
+        "tool.call.local",
+        "email.send.internal",
+        "email.send.external",
+        "calendar.create",
+        "social.post.public",
+        "payment.initiate",
+        "proposal.submit"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "description": "The recorded decision or outcome label. Implementations MUST normalize to one of the canonical labels (sent, approved, minor_edit, edited, heavy_rewrite, held, rejected, dropped) before computing weight. Free-text labels matching the trust-violation regex (§6.1) are also accepted."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date (YYYY-MM-DD) of the recorded event. Used for trust-violation window and time-range filtering."
+    },
+    "source": {
+      "type": "string",
+      "description": "Identifier of the tracker, table, or system that emitted the evidence row. Used for source attribution in the posterior output."
+    },
+    "source_type": {
+      "type": "string",
+      "description": "Reliability tier for the system or actor that produced the evidence. Used for provenance weighting.",
+      "enum": ["receipt", "principal", "connector", "model_inferred"]
+    },
+    "decision_weight": {
+      "type": "number",
+      "description": "Normalized outcome-quality weight in [-1, 1].",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "provenance_weight": {
+      "type": "number",
+      "description": "Source reliability weight in [0, 1].",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_weight": {
+      "type": "number",
+      "description": "Composed evidence weight, normally decision_weight * provenance_weight.",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "object_type": {
+      "type": "string",
+      "description": "The type of object the evidence describes (e.g. 'draft', 'approval_packet', 'message', 'task')."
+    },
+    "object_id": {
+      "type": "string",
+      "description": "Identifier of the specific object the evidence pertains to. Allows linking evidence back to the underlying artifact."
+    },
+    "receipt_id": {
+      "type": "string",
+      "description": "Audit receipt identifier. Implementations MAY use this to link to a row in the audit log (action-class-receipts in the Mission reference implementation)."
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when the evidence was recorded. Distinct from date (which is the event date)."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Implementation-specific metadata. Implementations MAY use this for actor, voice context, edit distance, or other auxiliary signals.",
+      "additionalProperties": true
+    }
+  }
+}

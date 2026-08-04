@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/spec/0.1/receipt.schema.json",
+  "title": "Trust Graduation Receipt",
+  "description": "Receipt for approval, refusal, correction, or execution. Trust Graduation Protocol v0.1.",
+  "type": "object",
+  "required": ["type", "receipt_id", "action_class", "outcome", "created_at"],
+  "additionalProperties": true,
+  "properties": {
+    "type": { "const": "trust_graduation_receipt" },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action_class": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "external_action_executed": {
+      "type": "boolean"
+    },
+    "human_approved": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "prev_hash": {
+      "type": "string",
+      "description": "Previous receipt hash for append-only chain verification."
+    },
+    "content_hash": {
+      "type": "string",
+      "description": "Hash commitment to canonical receipt content."
+    },
+    "redacted_for": {
+      "type": "string",
+      "description": "Reason content was removed while preserving audit continuity."
+    }
+  }
+}

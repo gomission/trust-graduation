@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-authority-interruption/v1.json",
+  "title": "Mission Authority Interruption",
+  "description": "The pause envelope carried when an agent SDK's tool call is interrupted for human approval. Points to an existing execution and grant.",
+  "type": "object",
+  "required": ["schema", "execution_id", "grant_id", "capability", "target", "paused_at"],
+  "properties": {
+    "schema": { "const": "mission-authority-interruption/v1" },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "grant_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "target": { "type": "string" },
+    "trace_id": { "type": "string" },
+    "paused_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

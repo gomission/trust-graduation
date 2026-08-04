@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-action/v1.json",
+  "title": "Mission Action",
+  "description": "The authorization envelope for a single Mission action. Hashed and referenced by receipts to attest exact intent.",
+  "type": "object",
+  "required": ["schema", "execution_id", "workspace_id", "capability", "target", "input_hash"],
+  "properties": {
+    "schema": { "const": "mission-action/v1" },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "target": { "type": "string" },
+    "input_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "title": { "type": "string" },
+    "item_id": { "type": "string" }
+  },
+  "additionalProperties": false
+}

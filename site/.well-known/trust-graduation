@@ -1,0 +1,53 @@
+{
+  "protocol": "trust-graduation",
+  "version": "0.1",
+  "canonical": "https://trustgraduation.org/",
+  "summary": "A permission protocol for agents. It tells an agent what action classes it may execute, what requires approval, what evidence is missing, and how future receipts can graduate authority.",
+  "spec": "https://trustgraduation.org/spec/0.1/",
+  "llms": "https://trustgraduation.org/llms.txt",
+  "repository": "https://github.com/gomission/trust-graduation",
+  "npm": "https://www.npmjs.com/package/@trust-graduation/core",
+  "reference_runtime": "https://gomission.io/",
+  "updated_at": "2026-08-04",
+  "implementation_profiles": {
+    "mission_gate_0_2": {
+      "status": "beta",
+      "profile": "https://trustgraduation.org/profiles/mission-gate/0.2/",
+      "schemas_source": "https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas",
+      "current_decision_schema": "mission-decision/v2",
+      "current_receipt_schema": "mission-execution-receipt/v2",
+      "receipt_signature": "ed25519/v1",
+      "action_classes": ["browser.research.read", "agent.plan.prepare", "gmail.draft.create", "mission.task.update.local", "email.send.external"]
+    }
+  },
+  "schemas": {
+    "action_class": "https://trustgraduation.org/spec/0.1/action-class.schema.json",
+    "decision": "https://trustgraduation.org/spec/0.1/decision.schema.json",
+    "approval_packet": "https://trustgraduation.org/spec/0.1/approval-packet.schema.json",
+    "receipt": "https://trustgraduation.org/spec/0.1/receipt.schema.json",
+    "evidence": "https://trustgraduation.org/spec/0.1/evidence-row.schema.json",
+    "posterior": "https://trustgraduation.org/spec/0.1/posterior.schema.json"
+  },
+  "decision_states": ["allowed", "allowed_with_constraints", "review_required", "deferred", "blocked", "human_only"],
+  "canonical_action_classes": [
+    "read.context",
+    "draft.compose",
+    "draft.response",
+    "tool.call.local",
+    "email.send.internal",
+    "email.send.external",
+    "calendar.create",
+    "social.post.public",
+    "payment.initiate",
+    "proposal.submit"
+  ],
+  "agent_guidance": {
+    "goal": "Use this protocol before consequential tool calls.",
+    "allowed": "Execute and record a receipt if a receipt is required.",
+    "allowed_with_constraints": "Execute only within constraints; record the receipt.",
+    "review_required": "Prepare an approval packet; do not execute externally.",
+    "deferred": "Queue for asynchronous approval; do not execute externally.",
+    "blocked": "Stop or reduce scope. Do not route around the gate.",
+    "human_only": "Prepare context only. The principal must execute."
+  }
+}

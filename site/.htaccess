@@ -1,0 +1,16 @@
+DirectoryIndex index.html
+
+AddType application/json .json
+AddType text/plain .txt
+AddType image/svg+xml .svg
+AddType image/vnd.microsoft.icon .ico
+
+<Files "trust-graduation">
+  ForceType application/json
+</Files>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set X-Robots-Tag "index, follow"
+</IfModule>

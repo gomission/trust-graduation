@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/spec/0.1/approval-packet.schema.json",
+  "title": "Trust Graduation Approval Packet",
+  "description": "Prepare-only review packet for a consequential action. Trust Graduation Protocol v0.1.",
+  "type": "object",
+  "required": ["type", "action_class", "proposed_action", "decision", "external_actions"],
+  "additionalProperties": true,
+  "properties": {
+    "type": { "const": "trust_graduation_approval_packet" },
+    "action_class": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+    },
+    "proposed_action": {
+      "description": "Exact message, command, mutation, destination, or state change proposed for review."
+    },
+    "decision": {
+      "$ref": "decision.schema.json"
+    },
+    "external_actions": {
+      "type": "integer",
+      "const": 0,
+      "description": "Approval packets are local prepare artifacts and must not execute externally."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {}
+    },
+    "required_approval": {
+      "type": "boolean"
+    },
+    "receipt_preview": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

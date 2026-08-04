@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/spec/0.1/action-class.schema.json",
+  "title": "Trust Graduation Action Class",
+  "description": "Canonical action-class registry row for Trust Graduation Protocol v0.1.",
+  "type": "object",
+  "required": ["id", "type", "description"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Canonical lowercase dot-notation action-class identifier.",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$",
+      "examples": [
+        "read.context",
+        "draft.compose",
+        "email.send.external",
+        "payment.initiate"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "description": "Consequence category for the action class.",
+      "enum": ["internal", "external controlled", "external", "human-only"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "aliases": {
+      "type": "array",
+      "description": "Legacy or implementation-local identifiers that canonicalize to this action class.",
+      "items": { "type": "string" }
+    }
+  }
+}

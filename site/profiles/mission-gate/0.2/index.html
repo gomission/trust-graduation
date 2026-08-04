@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mission Gate Conformance Profile 0.2 · Trust Graduation</title>
+  <meta name="description" content="The current Mission Gate implementation profile for Trust Graduation: exact-input decisions, signed receipt v2, trace correlation, outcomes, and authority interruptions.">
+  <meta name="robots" content="index,follow">
+  <meta name="color-scheme" content="light dark">
+  <link rel="canonical" href="https://trustgraduation.org/profiles/mission-gate/0.2/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css?v=20260804">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="wordmark" href="/"><span class="glyph" aria-hidden="true"><span></span></span>Trust Graduation</a>
+      <nav>
+        <a href="/spec/0.1/">Portable spec</a>
+        <a href="https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas" rel="noopener">Source</a>
+        <span class="version">Gate 0.2 · beta</span>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <article class="page spec">
+      <aside class="toc" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#boundary">Boundary</a></li>
+          <li><a href="#objects">Objects</a></li>
+          <li><a href="#classes">Action classes</a></li>
+          <li><a href="#receipts">Signed receipts</a></li>
+          <li><a href="#conformance">Conformance</a></li>
+        </ol>
+      </aside>
+      <section>
+        <div class="titleblock">
+          <span class="eyebrow">Implementation profile</span>
+          <h1>Mission Gate 0.2</h1>
+          <p class="lede">The machine-readable contract implemented by the current Mission Gate beta: classify exact inputs, pause at authority boundaries, resume only an approved action, and prove completed effects with signed, trace-correlated receipts.</p>
+          <div class="meta">
+            <span><strong>Version</strong> 0.2</span>
+            <span><strong>Status</strong> Beta</span>
+            <span><strong>Updated</strong> August 2026</span>
+            <span><strong>License</strong> Apache-2.0</span>
+          </div>
+        </div>
+
+        <h2 id="boundary"><span class="section-num">1.</span>Boundary<a class="permalink" href="#boundary">¶</a></h2>
+        <p>This is an implementation profile, not a replacement for the portable Trust Graduation v0.1 method. It records exactly what Mission Gate emits and validates today so adopters can test interoperability without treating Mission's storage or product UI as protocol requirements.</p>
+        <p>A host MUST distinguish preparation, approval, execution, and outcome. Approval authorizes one bounded action; it is not proof that the action happened.</p>
+
+        <h2 id="objects"><span class="section-num">2.</span>Current objects<a class="permalink" href="#objects">¶</a></h2>
+        <div class="schema-list">
+          <a href="/schemas/mission-gate/0.2/action.json"><code>mission-action/v1</code><span class="desc">Normalized proposed action and exact input</span></a>
+          <a href="/schemas/mission-gate/0.2/grant.json"><code>mission-grant/v1</code><span class="desc">Bounded authority granted to one action</span></a>
+          <a href="/schemas/mission-gate/0.2/decision-v2.json"><code>mission-decision/v2</code><span class="desc">Gate result with exact-input binding</span></a>
+          <a href="/schemas/mission-gate/0.2/policy.json"><code>mission-capability-policy/v1</code><span class="desc">Capability policy evaluated by the gate</span></a>
+          <a href="/schemas/mission-gate/0.2/execution.json"><code>mission-desktop-execution/v1</code><span class="desc">Approved execution envelope</span></a>
+          <a href="/schemas/mission-gate/0.2/receipt.json"><code>mission-execution-receipt/v2</code><span class="desc">Signed completion proof</span></a>
+          <a href="/schemas/mission-gate/0.2/outcome.json"><code>mission-outcome/v1</code><span class="desc">Attributed later outcome</span></a>
+          <a href="/schemas/mission-gate/0.2/authority-interruption.json"><code>mission-authority-interruption/v1</code><span class="desc">Portable paused-run state</span></a>
+          <a href="/schemas/mission-gate/0.2/signature.json"><code>mission-receipt-signature/v1</code><span class="desc">Ed25519 workspace signature envelope</span></a>
+          <a href="/schemas/mission-gate/0.2/public-key-manifest.json"><code>mission-public-key-manifest/v1</code><span class="desc">Verifier key discovery</span></a>
+        </div>
+
+        <h2 id="classes"><span class="section-num">3.</span>Action classes<a class="permalink" href="#classes">¶</a></h2>
+        <p>The Gate beta deliberately implements a smaller registry than the portable v0.1 examples. Unknown classes fail closed unless the host declares an extension.</p>
+        <table>
+          <thead><tr><th>Identifier</th><th>Risk</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><code>browser.research.read</code></td><td>read-only</td><td>none</td></tr>
+            <tr><td><code>agent.plan.prepare</code></td><td>plan-only</td><td>none</td></tr>
+            <tr><td><code>gmail.draft.create</code></td><td>reversible write</td><td>draft only</td></tr>
+            <tr><td><code>mission.task.update.local</code></td><td>local state move</td><td>local only</td></tr>
+            <tr><td><code>email.send.external</code></td><td>external consequence</td><td>email send</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="receipts"><span class="section-num">4.</span>Signed receipt v2<a class="permalink" href="#receipts">¶</a></h2>
+        <p>A completion receipt binds the workspace, execution, grant, capability, target, exact input, provider result, and trace context. SHA-256 digests cover the action, grant, decision, policy, and payload. The workspace signs canonical JSON with Ed25519; the signature envelope itself is excluded from the signed bytes.</p>
+        <pre><code>proposal → decision → authority interruption
+         → principal approval → resume once
+         → provider effect → signed receipt → outcome</code></pre>
+        <p>Queued, blocked, prepared, and approved states MUST NOT be represented as completed execution receipts.</p>
+
+        <h2 id="conformance"><span class="section-num">5.</span>Conformance<a class="permalink" href="#conformance">¶</a></h2>
+        <p>The zero-dependency package includes JSON Schemas, canonicalization helpers, a CLI, cross-object checks, and positive and adversarial fixtures.</p>
+        <pre><code>npx @gomission/mission-schemas mission-schemas-conform \
+  --schema mission-execution-receipt/v2 \
+  --file receipt.json
+
+npx @gomission/mission-schemas mission-schemas-conform \
+  --chain --file chain.json</code></pre>
+        <p>Until the npm package is published, use the source in the public repository. The profile does not claim publication before the registry confirms it.</p>
+        <div class="cta-row">
+          <a class="cta" href="https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas" rel="noopener">Inspect source and fixtures <span class="arrow">↗</span></a>
+          <a class="cta secondary" href="/spec/0.1/">Read portable v0.1 <span class="arrow">→</span></a>
+        </div>
+      </section>
+    </article>
+  </main>
+  <footer class="site-footer"><div class="site-footer-inner"><div>Trust Graduation · Mission Gate 0.2 beta</div><div><a href="/">Protocol home</a> · <a href="/llms.txt">llms.txt</a></div></div></footer>
+</body>
+</html>

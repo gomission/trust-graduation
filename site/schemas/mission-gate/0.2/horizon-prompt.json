@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-horizon-prompt/v1.json",
+  "title": "Mission Horizon Prompt",
+  "description": "A versioned human-readable Today, Week, Month, or custom prompt artifact. It expresses intent and binds plan preparation, but never grants downstream action authority.",
+  "type": "object",
+  "required": ["schema", "id", "revision_id", "kind", "view", "date", "text", "text_hash", "generated_text", "provider", "model", "ai_generated", "edited", "stale", "status", "revision", "source_state_hash", "referenced_item_ids", "referenced_items", "generated_at", "updated_at", "edited_at", "generation_attempted_at", "rationale", "confidence", "error", "execution"],
+  "properties": {
+    "schema": { "const": "mission-horizon-prompt/v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "revision_id": { "type": "string", "minLength": 1 },
+    "kind": { "type": "string", "enum": ["generated", "custom"] },
+    "view": { "type": "string", "enum": ["today", "week", "month"] },
+    "date": { "type": "string", "minLength": 1 },
+    "text": { "type": "string", "maxLength": 12000 },
+    "text_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "generated_text": { "type": "string", "maxLength": 12000 },
+    "provider": { "type": "string" },
+    "model": { "type": "string" },
+    "ai_generated": { "type": "boolean" },
+    "edited": { "type": "boolean" },
+    "stale": { "type": "boolean" },
+    "status": { "type": "string", "enum": ["draft", "generating", "ready", "stale", "failed"] },
+    "revision": { "type": "integer", "minimum": 1 },
+    "source_state_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "referenced_item_ids": { "type": "array", "items": { "type": "string" } },
+    "referenced_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "title", "next_action", "permission"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "next_action": { "type": "string" },
+          "permission": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "edited_at": { "type": "string" },
+    "generation_attempted_at": { "type": "string" },
+    "rationale": { "type": "string" },
+    "confidence": { "type": "string" },
+    "error": { "type": "string" },
+    "execution": {
+      "type": "object",
+      "required": ["capability", "approval", "external_actions"],
+      "properties": {
+        "capability": { "const": "agent.plan.prepare" },
+        "approval": { "const": "exact_saved_prompt_revision" },
+        "external_actions": { "const": "separate_action_approval_and_receipt" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/spec/0.1/decision.schema.json",
+  "title": "Trust Graduation Decision",
+  "description": "Gate decision for one proposed action class. Trust Graduation Protocol v0.1.",
+  "type": "object",
+  "required": ["status", "action_class", "reason"],
+  "additionalProperties": true,
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["allowed", "allowed_with_constraints", "review_required", "deferred", "blocked", "human_only"]
+    },
+    "action_class": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "graduationPath": {
+      "type": "object",
+      "description": "Machine-readable guidance for how an agent can move from denied or review-gated to allowed without bypassing the gate.",
+      "additionalProperties": true,
+      "properties": {
+        "needed": { "type": "number", "minimum": 0 },
+        "current": { "type": "number", "minimum": 0 },
+        "next_best_action": {
+          "type": "string",
+          "enum": ["prepareApprovalPacket", "request_principal_approval", "run_dry_run", "collect_receipt", "reduce_scope", "stop"]
+        },
+        "safe_fallback_action_class": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+        },
+        "required_evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Machine-evaluable bounds for allowed_with_constraints decisions.",
+      "additionalProperties": true,
+      "properties": {
+        "internal_only": { "type": "boolean" },
+        "staging_only": { "type": "boolean" },
+        "dry_run_only": { "type": "boolean" },
+        "max_amount": { "type": "number", "minimum": 0 },
+        "rate_limit": {
+          "type": "object",
+          "required": ["count", "window"],
+          "additionalProperties": true,
+          "properties": {
+            "count": { "type": "integer", "minimum": 1 },
+            "window": { "type": "string", "description": "Duration string, preferably ISO 8601." }
+          }
+        },
+        "recipient_allowlist": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "domain_allowlist": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "requires_witness": { "type": "boolean" },
+        "redaction_rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "observed": {
+      "type": "object",
+      "description": "Observed evidence/reversibility/approval inputs used by the gate.",
+      "additionalProperties": true
+    }
+  }
+}

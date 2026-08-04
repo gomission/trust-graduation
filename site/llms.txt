@@ -1,0 +1,103 @@
+# Trust Graduation Protocol
+
+Trust Graduation is a permission protocol for agentic systems. Agents earn permission per action class through evidence, approval packets, and receipts.
+
+Version: 0.1 (portable draft); Mission Gate conformance profile 0.2 (beta)
+Status: Public protocol, open to external implementations
+License: Public protocol — no usage restriction
+
+## Why this exists
+
+Most agent runtimes gate actions by tool name. Trust Graduation gates actions by consequence. A useful agent may safely observe, draft, and prepare long before it should send email, post publicly, spend money, or mutate production state.
+
+## Canonical resources
+
+- Homepage:        https://trustgraduation.org/
+- Spec v0.1:       https://trustgraduation.org/spec/0.1/
+- Well-known JSON: https://trustgraduation.org/.well-known/trust-graduation
+- Human credits:   https://trustgraduation.org/humans.txt
+- Sitemap:         https://trustgraduation.org/sitemap.xml
+- Reference repo:  https://github.com/gomission/trust-graduation
+- npm package:     https://www.npmjs.com/package/@trust-graduation/core
+- Gate profile:    https://trustgraduation.org/profiles/mission-gate/0.2/
+- Gate schemas:    https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas
+
+## Recommended crawler behavior
+
+Agents and crawlers may index, summarize, cite, and use this protocol documentation for implementation assistance.
+Use the canonical URLs above when citing the protocol. Prefer the JSON Schemas for machine validation and the v0.1 spec page for human-facing explanations.
+
+## Agent runtime guidance
+
+Use Trust Graduation before consequential tool calls. Classify the action by consequence, request a decision, and obey the returned state.
+
+- `allowed`: execute within the requested scope and record a receipt if required.
+- `allowed_with_constraints`: execute only inside the returned machine-evaluable constraints and record a receipt.
+- `review_required`: prepare an approval packet; external_actions must remain 0.
+- `deferred`: queue for asynchronous approval; do not execute externally.
+- `blocked`: stop or reduce scope; do not route around the gate.
+- `human_only`: prepare context only; the principal must execute.
+
+If a decision includes `graduationPath`, use `next_best_action` as the compliant next step. Typical values are `prepareApprovalPacket`, `request_principal_approval`, `run_dry_run`, `collect_receipt`, `reduce_scope`, and `stop`.
+
+## Schema files
+
+All schemas use JSON Schema draft 2020-12 and resolve at their $id URL:
+
+- https://trustgraduation.org/spec/0.1/action-class.schema.json
+- https://trustgraduation.org/spec/0.1/decision.schema.json
+- https://trustgraduation.org/spec/0.1/approval-packet.schema.json
+- https://trustgraduation.org/spec/0.1/receipt.schema.json
+- https://trustgraduation.org/spec/0.1/evidence-row.schema.json
+- https://trustgraduation.org/spec/0.1/posterior.schema.json
+
+## Three primitives
+
+An implementation should expose three operations:
+
+1. canExecute(actionClass, context) — returns one of six decision states
+2. prepareApprovalPacket(...)        — local prepare-only artifact, external_actions: 0
+3. recordReceipt(...)                — outcome record, feeds the posterior
+
+## Six decision states
+
+- allowed
+- allowed_with_constraints   (post-approval execution boundary; not a bypass)
+- review_required
+- deferred                   (queued for asynchronous approval)
+- blocked
+- human_only
+
+## Ten canonical action classes (v0.1)
+
+- read.context               (internal)
+- draft.compose              (internal)
+- draft.response             (internal)
+- tool.call.local            (internal)
+- email.send.internal        (external controlled)
+- email.send.external        (external)
+- calendar.create            (external controlled)
+- social.post.public         (external)
+- payment.initiate           (human-only)
+- proposal.submit            (external)
+
+## Evidence model
+
+evidence_weight = decision_weight × provenance_weight
+
+Default provenance weights:
+- receipt        1.00
+- principal      1.00
+- connector      0.30
+- model_inferred 0.10
+
+## Implementation status
+
+Mission (https://gomission.io) is the commercial reference runtime. The current Gate profile implements deterministic canonicalization, exact-input and cross-object SHA-256 commitments, Ed25519 workspace signatures, trace correlation, outcome attribution, and authority-interruption records. A v2 execution receipt means execution completed; preparation and approval are not execution receipts.
+
+The portable v0.1 registry above and the narrower Mission Gate 0.2 action-class registry are intentionally distinct. Implementations must publish which registry/profile they support and reject unknown classes unless they declare an extension.
+
+## Human context
+
+Protocol steward: Ronen Tanchum.
+The intended audience is builders of agent runtimes, MCP servers, approval systems, enterprise AI governance tooling, and auditors evaluating agent action controls.

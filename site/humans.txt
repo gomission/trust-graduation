@@ -1,0 +1,21 @@
+/* TEAM */
+
+Protocol steward: Ronen Tanchum
+Site: https://gomission.io
+GitHub: https://github.com/gomission/trust-graduation
+
+/* SITE */
+
+Name: Trust Graduation Protocol
+URL: https://trustgraduation.org/
+Purpose: A permission protocol for agentic systems.
+Language: English
+Version: 0.1 draft
+Last updated: 2026-06-13
+
+/* RESOURCES */
+
+Spec: https://trustgraduation.org/spec/0.1/
+Schemas: https://trustgraduation.org/spec/0.1/
+Agent brief: https://trustgraduation.org/llms.txt
+Reference package: https://www.npmjs.com/package/@trust-graduation/core

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-desktop-execution/v1.json",
+  "title": "Mission Desktop Execution",
+  "description": "A queued or completed governed execution row on a Mission workspace. Carries the full authority envelope and the trace context that receipts inherit.",
+  "type": "object",
+  "required": ["schema", "execution_id", "workspace_id", "capability", "status", "input", "input_hash", "idempotency_key", "grant", "created_at", "updated_at"],
+  "properties": {
+    "schema": { "const": "mission-desktop-execution/v1" },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "item_id": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["awaiting_approval", "approved", "queued", "working", "completed", "failed", "failed_safe", "outcome_unknown", "revoked"] },
+    "input": { "type": "object" },
+    "input_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "idempotency_key": { "type": "string", "minLength": 1 },
+    "grant": { "$ref": "https://schemas.gomission.io/mission-grant/v1.json" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "started_at": { "type": "string" },
+    "completed_at": { "type": "string" },
+    "error": { "type": "string" },
+    "receipt_id": { "type": "string" },
+    "result_preview": { "type": "object" },
+    "trace_context": {
+      "type": "object",
+      "required": ["trace_id", "enqueue_span_id"],
+      "properties": {
+        "trace_id":        { "type": "string" },
+        "enqueue_span_id": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

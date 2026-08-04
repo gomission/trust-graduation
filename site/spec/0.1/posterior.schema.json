@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/spec/0.1/posterior.schema.json",
+  "title": "Trust Graduation Posterior",
+  "description": "Computed Beta posterior, tier, and graduation state for one action class. Trust Graduation Protocol v0.1, section 5.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["action_class", "alpha", "beta", "samples", "mean", "ci_low", "ci_high", "tier"],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "description": "Trust Graduation Protocol version this posterior conforms to.",
+      "const": "0.1"
+    },
+    "action_class": {
+      "type": "string",
+      "description": "Canonical action class identifier. Producers MUST canonicalize legacy identifiers (per protocol §2) before validating against this schema.",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
+    },
+    "alpha": {
+      "type": "number",
+      "description": "Beta distribution alpha parameter (positive evidence + prior).",
+      "minimum": 0
+    },
+    "beta": {
+      "type": "number",
+      "description": "Beta distribution beta parameter (negative evidence + prior).",
+      "minimum": 0
+    },
+    "samples": {
+      "type": "integer",
+      "description": "Count of in-window evidence rows with non-zero weight (positive + negative).",
+      "minimum": 0
+    },
+    "positive": {
+      "type": "integer",
+      "description": "Count of in-window evidence rows with weight > 0.",
+      "minimum": 0
+    },
+    "negative": {
+      "type": "integer",
+      "description": "Count of in-window evidence rows with weight < 0.",
+      "minimum": 0
+    },
+    "neutral": {
+      "type": "integer",
+      "description": "Count of in-window evidence rows with weight = 0.",
+      "minimum": 0
+    },
+    "mean": {
+      "type": "number",
+      "description": "Posterior mean approval rate: alpha / (alpha + beta).",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ci_low": {
+      "type": "number",
+      "description": "Lower bound of the 95% credible interval.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ci_high": {
+      "type": "number",
+      "description": "Upper bound of the 95% credible interval.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ci_width": {
+      "type": "number",
+      "description": "Width of the credible interval (ci_high - ci_low). Used as a precision indicator.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_quality": {
+      "type": "object",
+      "description": "Counts of evidence rows grouped by quality tier (per §4.2).",
+      "additionalProperties": false,
+      "properties": {
+        "strong": { "type": "integer", "minimum": 0 },
+        "partial": { "type": "integer", "minimum": 0 },
+        "ambiguous": { "type": "integer", "minimum": 0 },
+        "weak": { "type": "integer", "minimum": 0 },
+        "neutral": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "needs_more_evidence": {
+      "type": "boolean",
+      "description": "True when samples < 10 OR (ci_high - ci_low) > 0.35."
+    },
+    "trust_violation_recent": {
+      "type": "boolean",
+      "description": "True when at least one in-window evidence row (within 30 days) matches the trust-violation regex (§6.1)."
+    },
+    "tier": {
+      "type": "string",
+      "description": "Current enforcement state for the action class.",
+      "enum": ["gated", "supervised", "auto_capped", "review"]
+    },
+    "graduation_ready": {
+      "type": "boolean",
+      "description": "True when ci_low >= ci_low_min[action_class] AND samples >= samples_min[action_class] AND NOT trust_violation_recent. A recommendation surface only; does not itself grant autonomy."
+    },
+    "by_source": {
+      "type": "object",
+      "description": "Count of contributing evidence rows by source identifier. Useful for understanding which trackers fed the posterior.",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

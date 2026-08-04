@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gomission.io/mission-public-key-manifest/v1.json",
+  "title": "Mission Public Key Manifest",
+  "description": "The workspace public key distribution manifest. Enables offline signature verification and honors key rotation and revocation.",
+  "type": "object",
+  "required": ["workspace_id", "keys"],
+  "properties": {
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key_id", "algorithm", "version", "public_key_base64", "status", "created_at"],
+        "properties": {
+          "key_id": { "type": "string", "pattern": "^wkspc-[0-9a-f]{12}:key-[0-9a-f]{12}$" },
+          "algorithm": { "const": "ed25519" },
+          "version": { "const": "v1" },
+          "public_key_base64": { "type": "string", "minLength": 1 },
+          "status": { "type": "string", "enum": ["active", "retired", "revoked"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "retired_at": { "type": "string" },
+          "revoked_at": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
