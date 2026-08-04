@@ -49,11 +49,11 @@ Preparation, a queued request, a paused run, and approval are not execution. Hos
 Run the zero-dependency CLI against one object or a cross-object chain:
 
 ```sh
-npx @gomission/mission-schemas mission-schemas-conform \
+npx @gomission/mission-schemas@beta \
   --schema mission-execution-receipt/v2 \
   --file receipt.json
 
-npx @gomission/mission-schemas mission-schemas-conform \
+npx @gomission/mission-schemas@beta \
   --chain \
   --file chain.json
 ```

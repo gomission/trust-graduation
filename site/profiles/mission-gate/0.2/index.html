@@ -90,13 +90,13 @@
 
         <h2 id="conformance"><span class="section-num">5.</span>Conformance<a class="permalink" href="#conformance">¶</a></h2>
         <p>The zero-dependency package includes JSON Schemas, canonicalization helpers, a CLI, cross-object checks, and positive and adversarial fixtures.</p>
-        <pre><code>npx @gomission/mission-schemas mission-schemas-conform \
+        <pre><code>npx @gomission/mission-schemas@beta \
   --schema mission-execution-receipt/v2 \
   --file receipt.json
 
-npx @gomission/mission-schemas mission-schemas-conform \
+npx @gomission/mission-schemas@beta \
   --chain --file chain.json</code></pre>
-        <p>Until the npm package is published, use the source in the public repository. The profile does not claim publication before the registry confirms it.</p>
+        <p>The conformance package is published on npm under the <code>beta</code> tag. Its complete source, fixtures, and schemas remain available in the public repository.</p>
         <div class="cta-row">
           <a class="cta" href="https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas" rel="noopener">Inspect source and fixtures <span class="arrow">↗</span></a>
           <a class="cta secondary" href="/spec/0.1/">Read portable v0.1 <span class="arrow">→</span></a>
