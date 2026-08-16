@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trustgraduation.org/extensions/a2a/action-authorization/v1/action-binding.schema.json",
+  "title": "Trust Graduation A2A Exact Action Binding",
+  "description": "Immutable commitment reviewed by a principal before one consequential action executes.",
+  "type": "object",
+  "required": [
+    "protocol",
+    "version",
+    "actionClass",
+    "workspace",
+    "principal",
+    "requestedBy",
+    "tenant",
+    "target",
+    "inputHash",
+    "constraints",
+    "expiresAt",
+    "nonce",
+    "actionHash"
+  ],
+  "properties": {
+    "protocol": { "const": "trust-graduation-action-binding" },
+    "version": { "const": "1.0" },
+    "actionClass": { "type": "string", "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$" },
+    "workspace": { "type": "string" },
+    "principal": { "type": "string", "minLength": 1 },
+    "requestedBy": { "type": "string", "minLength": 1 },
+    "tenant": { "type": "string" },
+    "target": { "type": "string" },
+    "inputHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "constraints": { "type": "object" },
+    "expiresAt": { "type": "string", "format": "date-time" },
+    "nonce": { "type": "string", "pattern": "\\S" },
+    "actionHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

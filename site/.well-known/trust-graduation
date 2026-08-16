@@ -2,13 +2,24 @@
   "protocol": "trust-graduation",
   "version": "0.1",
   "canonical": "https://trustgraduation.org/",
-  "summary": "A permission protocol for agents. It tells an agent what action classes it may execute, what requires approval, what evidence is missing, and how future receipts can graduate authority.",
+  "status": "experimental",
+  "summary": "An open authority method and experimental interoperability profile. It tells an agent what action classes it may execute, what requires approval, what evidence is missing, and how future receipts can graduate authority.",
   "spec": "https://trustgraduation.org/spec/0.1/",
   "llms": "https://trustgraduation.org/llms.txt",
   "repository": "https://github.com/gomission/trust-graduation",
   "npm": "https://www.npmjs.com/package/@trust-graduation/core",
   "reference_runtime": "https://gomission.io/",
-  "updated_at": "2026-08-04",
+  "updated_at": "2026-08-16",
+  "extensions": {
+    "a2a_exact_action_authorization_v1": {
+      "status": "experimental",
+      "uri": "https://trustgraduation.org/extensions/a2a/action-authorization/v1",
+      "a2a_protocol_version": "1.0",
+      "task_state": "TASK_STATE_AUTH_REQUIRED",
+      "action_binding_schema": "https://trustgraduation.org/extensions/a2a/action-authorization/v1/action-binding.schema.json",
+      "approval_grant_schema": "https://trustgraduation.org/extensions/a2a/action-authorization/v1/approval-grant.schema.json"
+    }
+  },
   "implementation_profiles": {
     "mission_gate_0_2": {
       "status": "beta",

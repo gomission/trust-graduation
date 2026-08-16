@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0-beta.2
+
+- Added a provider-bound `createProviderGate()` composition API with mandatory
+  issuer authentication, atomic grant consumption, provider invocation, and
+  result-linked receipt callbacks.
+- Added a non-overwriting `init-adapter` scaffold and machine-readable
+  `conformance` runner for missing approval, mutation, authentication failure,
+  store failure, replay, and simultaneous-consumer cases.
+- Added an explicit fifteen-minute integration guide and runnable adapter
+  template; passing it remains a local contract proof rather than adoption or
+  certification.
+- Reject unbound approval flags for consequential actions.
+- Add deterministic exact action bindings and expiring, revocable, single-use grants with required nonces.
+- Make matching grants pending until `consumeApprovalGrant()` wins a shared atomic store operation; add process-local demo store and concurrent replay fixtures.
+- Add the experimental A2A v1 exact action authorization extension, schemas, helpers, and runnable continuation example.
+- Document the existing portable snake_case versus JavaScript camelCase schema boundary instead of presenting the two different schema IDs as aliases.
+- Document the beta npm tag explicitly and keep entitlement helpers outside the authority profile.
+
 ## 0.2.0-beta.1 — 2026-08-04
 
 - Promoted the JavaScript core from alpha to beta without changing the v0.1 portable decision contract.

@@ -1,11 +1,11 @@
 {
   "name": "@trust-graduation/core",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "description": "Embeddable permission, evidence, and approval protocol for human-gated agent autonomy.",
   "type": "module",
   "types": "./src/index.d.ts",
   "license": "Apache-2.0",
-  "author": "Phenomena Labs Ltd <missionexecutionlayer@gmail.com> (https://trust-graduation.org)",
+  "author": "Phenomena Labs Ltd <missionexecutionlayer@gmail.com> (https://trustgraduation.org)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gomission/trust-graduation.git"
@@ -13,6 +13,10 @@
   "homepage": "https://trustgraduation.org/",
   "bugs": {
     "url": "https://github.com/gomission/trust-graduation/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "beta"
   },
   "keywords": [
     "ai-agents",
@@ -24,6 +28,9 @@
   ],
   "engines": {
     "node": ">=18"
+  },
+  "bin": {
+    "trust-graduation": "./src/cli.js"
   },
   "exports": {
     ".": "./src/index.js",
@@ -44,6 +51,9 @@
     "test:schemas": "npm test --prefix packages/mission-schemas",
     "test:all": "npm test && npm run test:schemas",
     "example": "node examples/minimal.js",
+    "demo": "node src/cli.js demo",
+    "conformance:self": "node src/cli.js conformance examples/provider-gate-adapter.mjs --json",
+    "example:a2a": "node examples/a2a-authority-continuation.js",
     "docs:pdf": "python3 scripts/generate-protocol-pdf.py",
     "docs:update": "node scripts/update-protocol-docs.mjs"
   }

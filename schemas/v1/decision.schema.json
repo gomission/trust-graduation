@@ -18,7 +18,7 @@
     },
     "mode": {
       "type": "string",
-      "enum": ["allowed", "supervised", "auto_capped", "approval_required", "review_only", "insufficient_evidence", "denied", "approved_once", "human_only"]
+      "enum": ["allowed", "supervised", "auto_capped", "approval_required", "review_only", "insufficient_evidence", "denied", "pending_atomic_consumption", "human_only"]
     },
     "autonomyLevel": { "type": "integer", "minimum": 0, "maximum": 5 },
     "tier": { "type": "string", "enum": ["gated", "supervised", "auto_capped", "review"] },
@@ -55,7 +55,9 @@
         }
       }
     },
+    "actionBinding": { "type": "object" },
     "reason": { "type": "string" },
+    "requiresAtomicConsumption": { "type": "boolean" },
     "graduationPath": {
       "type": "object",
       "properties": {

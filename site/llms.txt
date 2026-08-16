@@ -1,10 +1,10 @@
 # Trust Graduation Protocol
 
-Trust Graduation is a permission protocol for agentic systems. Agents earn permission per action class through evidence, approval packets, and receipts.
+Trust Graduation is an open method and experimental interoperability profile for bounded agent authority. Agents earn permission per action class through evidence, approval packets, and receipts.
 
-Version: 0.1 (portable draft); Mission Gate conformance profile 0.2 (beta)
-Status: Public protocol, open to external implementations
-License: Public protocol — no usage restriction
+Version: 0.1 (portable draft); Mission Gate conformance profile 0.2 (beta); A2A exact action authorization v1 (experimental)
+Status: Experimental; no independent implementation has completed conformance yet
+License: Apache-2.0
 
 ## Why this exists
 
@@ -21,6 +21,9 @@ Most agent runtimes gate actions by tool name. Trust Graduation gates actions by
 - npm package:     https://www.npmjs.com/package/@trust-graduation/core
 - Gate profile:    https://trustgraduation.org/profiles/mission-gate/0.2/
 - Gate schemas:    https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas
+- A2A extension:   https://trustgraduation.org/extensions/a2a/action-authorization/v1
+- A2A binding:     https://trustgraduation.org/extensions/a2a/action-authorization/v1/action-binding.schema.json
+- A2A grant:       https://trustgraduation.org/extensions/a2a/action-authorization/v1/approval-grant.schema.json
 
 ## Recommended crawler behavior
 
@@ -31,10 +34,13 @@ Use the canonical URLs above when citing the protocol. Prefer the JSON Schemas f
 
 Use Trust Graduation before consequential tool calls. Classify the action by consequence, request a decision, and obey the returned state.
 
+For A2A v1, `TASK_STATE_AUTH_REQUIRED` is not itself authority. Activate the exact action authorization extension, bind the principal, requesting agent, tenant, target, canonical input hash, constraints, expiry, and nonce into one `actionHash`, then accept only an authenticated, unexpired, unrevoked single-use grant for that hash. Pure validation is not authority: atomically check durable revocation and consume the grant in a shared store immediately before provider invocation. A racing duplicate or unchanged-grant replay must lose.
+
 - `allowed`: execute within the requested scope and record a receipt if required.
 - `allowed_with_constraints`: execute only inside the returned machine-evaluable constraints and record a receipt.
 - `review_required`: prepare an approval packet; external_actions must remain 0.
 - `deferred`: queue for asynchronous approval; do not execute externally.
+- `pending_atomic_consumption` mode: the exact grant is structurally eligible but `allowed` remains false; execute only if the atomic consume operation returns success.
 - `blocked`: stop or reduce scope; do not route around the gate.
 - `human_only`: prepare context only; the principal must execute.
 

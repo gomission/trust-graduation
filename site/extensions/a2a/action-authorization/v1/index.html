@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>A2A Exact Action Authorization v1 · Trust Graduation</title>
+  <meta name="description" content="Experimental A2A v1 extension for exact action-bound, expiring, revocable, single-use authorization and execution receipts.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://trustgraduation.org/extensions/a2a/action-authorization/v1">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/site.css?v=20260816">
+</head>
+<body>
+  <header class="site-header"><div class="site-header-inner">
+    <a class="wordmark" href="/"><span class="glyph" aria-hidden="true"><span></span></span>Trust Graduation</a>
+    <nav><a href="/spec/0.1/">Portable draft</a><a href="/profiles/mission-gate/0.2/">Gate profile</a><a href="https://github.com/gomission/trust-graduation">Source</a><span class="version">A2A v1 · experimental</span></nav>
+  </div></header>
+  <main><article class="page spec"><section>
+    <div class="titleblock">
+      <span class="eyebrow">Experimental A2A extension</span>
+      <h1>Exact Action Authorization v1</h1>
+      <p class="lede">Continue an A2A task after human authorization without turning <code>TASK_STATE_AUTH_REQUIRED</code> into a blank check.</p>
+      <div class="meta"><span><strong>A2A</strong> 1.0</span><span><strong>Extension</strong> v1</span><span><strong>Status</strong> Experimental</span><span><strong>License</strong> Apache-2.0</span></div>
+    </div>
+    <h2 id="gap">The gap</h2>
+    <p>A2A intentionally leaves authorization scope, representation, validity, and revocation to implementations or extensions. This profile binds a decision to the exact action class, principal, requesting agent, tenant, target, canonical input hash, constraints, expiry, and nonce.</p>
+    <pre><code>proposed effect → AUTH_REQUIRED → exact action hash
+                → single-use grant → atomic consume → execute once
+                → receipt artifact → outcome evidence</code></pre>
+    <h2 id="rules">Required rules</h2>
+    <ol>
+      <li>A task-state transition alone never authorizes an effect.</li>
+      <li>Changed target or input requires a new decision.</li>
+      <li>Expired, revoked, consumed, or identity-mismatched grants fail closed.</li>
+      <li>Pure validation is not authority; the executor atomically checks durable revocation and consumes the grant in a shared store before provider invocation.</li>
+      <li>Only provider-confirmed completion produces a completed receipt.</li>
+    </ol>
+    <h2 id="schemas">Schemas and implementation</h2>
+    <div class="schema-list">
+      <a href="action-binding.schema.json"><code>ActionBinding</code><span class="desc">Immutable reviewed effect</span></a>
+      <a href="approval-grant.schema.json"><code>ApprovalGrant</code><span class="desc">Expiring, revocable, single-use authority</span></a>
+      <a href="https://github.com/gomission/trust-graduation/blob/main/docs/a2a-action-authorization-extension-v1.md"><code>Full specification</code><span class="desc">Flow, security, failures, and conformance</span></a>
+    </div>
+    <pre><code>npm install @trust-graduation/core@beta
+npm run example:a2a</code></pre>
+    <p>This draft is not yet an official A2A extension. The next gate is two independent implementations passing mutation, expiry, revocation, identity, unchanged-grant replay, and simultaneous-consumer fixtures before an upstream proposal.</p>
+  </section></article></main>
+  <footer class="site-footer"><div class="site-footer-inner"><div>Trust Graduation · A2A exact action authorization</div><div><a href="/">Home</a> · <a href="https://github.com/gomission/trust-graduation">GitHub</a></div></div></footer>
+</body>
+</html>

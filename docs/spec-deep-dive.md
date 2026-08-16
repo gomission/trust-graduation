@@ -1,5 +1,11 @@
 # Trust Graduation Protocol v0.1 Deep Dive
 
+This document describes the camelCase JavaScript reference implementation.
+The canonical portable v0.1 method at `trustgraduation.org/spec/0.1/` uses a
+smaller snake_case vocabulary, and the two representations are not claimed to
+be byte-identical. Exact cross-runtime action authority is specified separately
+by the versioned A2A extension schemas.
+
 Status: alpha draft
 Purpose: define the protocol surface independent of any one product
 
@@ -225,7 +231,7 @@ Recommended status values:
 - `blocked`
 - `human_only`
 
-The JavaScript reference implementation also keeps the older `mode` field for compatibility and explanation. `mode` may contain values such as `supervised`, `auto_capped`, `approval_required`, `review_only`, `insufficient_evidence`, `approved_once`, or `human_only`.
+The JavaScript reference implementation also keeps the older `mode` field for compatibility and explanation. `mode` may contain values such as `supervised`, `auto_capped`, `approval_required`, `review_only`, `insufficient_evidence`, `pending_atomic_consumption`, or `human_only`. A matching consequential-action grant stays in `pending_atomic_consumption` with `allowed: false` until the executor wins a shared atomic consume operation.
 
 This makes the protocol legible to products, logs, and auditors.
 

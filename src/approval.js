@@ -6,6 +6,7 @@ export function buildApprovalPacket({
   actionClass = "",
   requestedAction = {},
   constraints = {},
+  actionBinding = {},
   context = {},
   policy = {},
   evidence = {},
@@ -31,6 +32,7 @@ export function buildApprovalPacket({
     reason,
     requestedAction,
     constraints,
+    actionBinding,
     context,
     evidence,
     decisions: [

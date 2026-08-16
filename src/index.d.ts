@@ -1,7 +1,7 @@
 export type RiskClass = "low" | "medium" | "high" | "critical";
 export type EvidenceTier = "gated" | "supervised" | "auto_capped" | "review";
 export type DecisionStatus = "allowed" | "allowed_with_constraints" | "review_required" | "deferred" | "blocked" | "human_only";
-export type DecisionMode = "allowed" | "supervised" | "auto_capped" | "approval_required" | "review_only" | "insufficient_evidence" | "denied" | "approved_once" | "human_only";
+export type DecisionMode = "allowed" | "supervised" | "auto_capped" | "approval_required" | "review_only" | "insufficient_evidence" | "denied" | "pending_atomic_consumption" | "human_only";
 
 export interface ActionPolicy {
   actionClass: string;
@@ -82,6 +82,7 @@ export interface ApprovalPacket {
   reason: string;
   requestedAction?: Record<string, unknown>;
   constraints?: Record<string, unknown>;
+  actionBinding?: ActionBinding;
   context: Record<string, unknown>;
   evidence: EvidenceSummary | Record<string, unknown>;
   decisions: ApprovalDecisionOption[];
@@ -104,9 +105,11 @@ export interface TrustDecision {
   policy: ActionPolicy;
   evidence: EvidenceSummary;
   constraints?: Record<string, unknown>;
+  actionBinding?: ActionBinding;
   reason: string;
   packet?: ApprovalPacket;
   createdAt?: string;
+  requiresAtomicConsumption?: boolean;
 }
 
 export interface CanExecuteRequest {
@@ -115,11 +118,155 @@ export interface CanExecuteRequest {
   approval?: { state?: string; [key: string]: unknown };
 }
 
+export interface ActionBinding {
+  protocol: "trust-graduation-action-binding";
+  version: "1.0";
+  actionClass: string;
+  workspace: string;
+  principal: string;
+  requestedBy: string;
+  tenant: string;
+  target: string;
+  inputHash: string;
+  actionHash: string;
+  constraints: Record<string, unknown>;
+  expiresAt?: string;
+  nonce?: string;
+}
+
+export interface ApprovalGrant {
+  protocol: "trust-graduation-authorization";
+  version: "1.0";
+  state: "approved";
+  grantId: string;
+  issuer: string;
+  principal: string;
+  requestedBy: string;
+  workspace: string;
+  tenant: string;
+  actionClass: string;
+  target: string;
+  inputHash: string;
+  actionHash: string;
+  nonce: string;
+  scope: "once";
+  maxExecutions: 1;
+  executionCount: number;
+  issuedAt: string;
+  expiresAt: string;
+  revocable: true;
+  revocationHandle?: string;
+  revokedAt?: string;
+  signature?: Record<string, unknown>;
+}
+
 export interface TrustGraduationOptions {
   workspace?: string;
   evidence?: EvidenceEvent[] | Partial<EvidenceSummary>;
   policies?: ActionPolicy[];
   now?: () => Date;
+}
+
+export interface GrantConsumptionInput {
+  grantId: string;
+  issuer: string;
+  tenant: string;
+  workspace: string;
+  principal: string;
+  actionHash: string;
+  expiresAt: string;
+  revocationHandle?: string;
+}
+
+export interface GrantConsumptionResult {
+  ok: boolean;
+  reason?: "grant_revoked" | "grant_already_consumed";
+}
+
+export interface AtomicGrantStore {
+  consume(input: Readonly<GrantConsumptionInput>): boolean | GrantConsumptionResult | Promise<boolean | GrantConsumptionResult>;
+  revoke?(input: Readonly<GrantConsumptionInput>): boolean | Promise<boolean>;
+}
+
+export interface ApprovalGrantValidation {
+  ok: boolean;
+  reason: string;
+  binding?: ActionBinding;
+  approval?: Partial<ApprovalGrant>;
+  consumedAt?: string;
+}
+
+export interface ProviderAction {
+  actionClass: string;
+  workspace?: string;
+  principal?: string;
+  requestedBy?: string;
+  tenant?: string;
+  target: string;
+  input: unknown;
+  constraints?: Record<string, unknown>;
+  expiresAt?: string;
+  nonce?: string;
+}
+
+export interface ProviderExecutionReceipt {
+  protocol: "trust-graduation";
+  version: "1.0";
+  receiptId: string;
+  grantId: string;
+  actionClass: string;
+  actionHash: string;
+  outcome: "provider_confirmed" | "provider_confirmed_result_unlinked" | "provider_outcome_unknown";
+  externalActionExecuted: boolean | null;
+  humanApproved: true;
+  createdAt: string;
+  providerResultHash?: string;
+  providerErrorCode?: string;
+}
+
+export interface ProviderGateExecution {
+  ok: boolean;
+  reason: string;
+  providerCalled: boolean;
+  outcomeUnknown: boolean;
+  binding?: ActionBinding;
+  authorization?: ApprovalGrantValidation;
+  providerResult?: unknown;
+  receipt?: ProviderExecutionReceipt;
+  detail?: string;
+}
+
+export interface ProviderGate {
+  prepare(action: ProviderAction): ActionBinding;
+  execute(input: {
+    binding: ActionBinding;
+    approval?: Partial<ApprovalGrant> | null;
+    action: ProviderAction;
+  }): Promise<ProviderGateExecution>;
+}
+
+export interface ProviderGateDependencies {
+  store: AtomicGrantStore;
+  authenticateGrant(input: Readonly<{
+    approval?: Partial<ApprovalGrant> | null;
+    binding: ActionBinding;
+    action: ProviderAction;
+  }>): boolean | { ok: boolean; reason?: string } | Promise<boolean | { ok: boolean; reason?: string }>;
+  provider(input: unknown, context: Readonly<Record<string, unknown>>): unknown | Promise<unknown>;
+  writeReceipt(receipt: ProviderExecutionReceipt): unknown | Promise<unknown>;
+  now?: () => Date | string;
+  createId?: () => string;
+  resultEvidence?: (result: unknown) => unknown | Promise<unknown>;
+  grantLifetimeMs?: number;
+}
+
+export interface ProviderGateConformanceResult {
+  protocol: "trust-graduation-provider-gate-conformance";
+  version: "0.1";
+  ok: boolean;
+  checks: Record<string, boolean>;
+  provider_calls: Record<string, number>;
+  receipts_written: number;
 }
 
 export class TrustGraduation {
@@ -141,6 +288,24 @@ export function evidenceWeight(entry?: EvidenceEvent): number;
 export function tierFromEvidence(summary?: Partial<EvidenceSummary>): EvidenceTier;
 export function levelFromTier(tier: EvidenceTier): number;
 export function buildApprovalPacket(input?: Record<string, unknown>): ApprovalPacket;
+export function canonicalJson(value: unknown): string;
+export function digestObject(value: unknown): string;
+export function bindAction(input: Record<string, unknown>): ActionBinding;
+export function createApprovalGrant(input: { binding: ActionBinding; grantId: string; issuer: string; issuedAt?: string; expiresAt?: string; revocationHandle?: string }): ApprovalGrant;
+export function validateApprovalGrant(input: { binding: ActionBinding; approval?: Partial<ApprovalGrant> | null; now?: Date | string }): ApprovalGrantValidation;
+export function createMemoryGrantStore(): AtomicGrantStore;
+export function consumeApprovalGrant(input: { binding: ActionBinding; approval?: Partial<ApprovalGrant> | null; now?: Date | string; store?: AtomicGrantStore }): Promise<ApprovalGrantValidation>;
+export function createProviderGate(dependencies: ProviderGateDependencies): ProviderGate;
+export function runProviderGateConformance(input: {
+  createGate(dependencies: ProviderGateDependencies): ProviderGate | Promise<ProviderGate>;
+}): Promise<ProviderGateConformanceResult>;
+export const A2A_AUTHORIZATION_EXTENSION_URI: string;
+export const A2A_AUTHORIZATION_MEDIA_TYPE: string;
+export const A2A_RECEIPT_MEDIA_TYPE: string;
+export function a2aAgentExtension(input?: { required?: boolean }): Record<string, unknown>;
+export function toA2AAuthorizationTask(input: Record<string, unknown>): Record<string, unknown>;
+export function toA2AApprovalMessage(input: Record<string, unknown>): Record<string, unknown>;
+export function toA2AReceiptArtifact(input: Record<string, unknown>): Record<string, unknown>;
 export function policyForActionClass(actionClass: string, policies?: ActionPolicy[]): ActionPolicy;
 export function normalizeActionClass(actionClass?: string): string;
 export function inferRiskClass(actionClass?: string): RiskClass;

@@ -63,6 +63,7 @@
       <nav>
         <a href="/spec/0.1/">Spec</a>
         <a href="/profiles/mission-gate/0.2/">Gate profile</a>
+        <a href="/extensions/a2a/action-authorization/v1">A2A extension</a>
         <a href="#implementations">Implementations</a>
         <a href="https://github.com/gomission/trust-graduation" rel="noopener">GitHub</a>
         <a href="https://www.npmjs.com/package/@trust-graduation/core" rel="noopener">npm</a>
@@ -82,7 +83,7 @@
           <span><strong>Version</strong> 0.1</span>
           <span><strong>Status</strong> Draft</span>
           <span><strong>Updated</strong> August 2026</span>
-          <span><strong>License</strong> Public protocol</span>
+          <span><strong>License</strong> Apache-2.0</span>
         </div>
       </div>
 
@@ -104,6 +105,15 @@
       <div class="cta-row">
         <a class="cta" href="/profiles/mission-gate/0.2/">Read the Mission Gate 0.2 profile <span class="arrow">→</span></a>
         <a class="cta secondary" href="https://github.com/gomission/trust-graduation/tree/main/packages/mission-schemas" rel="noopener">Schemas and conformance <span class="arrow">↗</span></a>
+      </div>
+
+      <div class="section-divider"><span class="label">Standards edge</span></div>
+      <h2 id="a2a-extension">A2A exact action authorization<a class="permalink" href="#a2a-extension">¶</a></h2>
+      <p>A2A v1 intentionally leaves authorization scope, representation, validity, and revocation to extensions. The experimental Trust Graduation extension binds a human decision to one exact action, target, input, principal, agent, tenant, expiry, and execution, then returns receipt evidence as a Task Artifact.</p>
+      <p>A plain approval flag, pure validation result, and the <code>TASK_STATE_AUTH_REQUIRED</code> transition are never authority. The executor must atomically consume the exact grant before the provider call; mutated, expired, revoked, identity-mismatched, racing, or replayed grants fail closed.</p>
+      <div class="cta-row">
+        <a class="cta" href="/extensions/a2a/action-authorization/v1">Read the A2A extension draft <span class="arrow">→</span></a>
+        <a class="cta secondary" href="https://github.com/gomission/trust-graduation/blob/main/examples/a2a-authority-continuation.js" rel="noopener">Run the example <span class="arrow">↗</span></a>
       </div>
 
       <div class="section-divider"><span class="label">§ 1</span></div>
@@ -225,7 +235,7 @@
         <div class="impl-card">
           <h3>@trust-graduation/core</h3>
           <p>Minimal JavaScript reference. The three primitives, the canonical registry, evidence classification.</p>
-          <div class="impl-meta">npm · 0.2.0-beta.1 source prepared</div>
+          <div class="impl-meta">npm · 0.2.0-beta.2 release candidate</div>
         </div>
         <div class="impl-card">
           <h3>Mission</h3>
@@ -254,7 +264,7 @@
 
   <footer class="site-footer">
     <div class="site-footer-inner">
-      <div>Trust Graduation Protocol · v0.1 draft · Public protocol</div>
+      <div>Trust Graduation · v0.1 experimental draft · Apache-2.0</div>
       <div>
         <a href="/spec/0.1/">Spec</a> ·
         <a href="https://github.com/gomission/trust-graduation" rel="noopener">GitHub</a> ·

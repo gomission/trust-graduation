@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { TrustGraduation, createLicenseToken, decodeLicenseToken, evidenceWeight, licenseAllows, normalizeActionClass, summarizeEvidence } from "../src/index.js";
+import { TrustGraduation, consumeApprovalGrant, createApprovalGrant, createLicenseToken, createMemoryGrantStore, decodeLicenseToken, evidenceWeight, licenseAllows, normalizeActionClass, summarizeEvidence } from "../src/index.js";
 
 const now = () => new Date("2026-05-30T12:00:00.000Z");
 const repo = path.resolve(new URL("..", import.meta.url).pathname);
@@ -79,12 +79,14 @@ test("external sends remain approval-gated even with clean evidence", () => {
   assert.equal(result.packet?.principal, "user-123");
   assert.equal(result.packet?.requestedBy, "assistant");
   assert.equal(result.packet?.constraints?.scope, "once");
+  assert.equal(result.packet?.actionBinding?.expiresAt, "2026-05-30T12:10:00.000Z");
+  assert.match(result.packet?.actionBinding?.nonce || "", /^[0-9a-f-]{36}$/);
   assert.equal(result.graduationPath?.next_best_action, "prepareApprovalPacket");
   assert.equal(result.graduationPath?.safe_fallback_action_class, "draft.response");
   assert.ok(result.graduationPath?.required_evidence?.includes("principal approval receipt"));
 });
 
-test("explicit approval permits a gated external action once", () => {
+test("an unbound approval cannot authorize a gated external action", () => {
   const tg = new TrustGraduation({
     workspace: "user-123",
     now,
@@ -96,9 +98,49 @@ test("explicit approval permits a gated external action once", () => {
     approval: { state: "approved", scope: "once" }
   });
 
-  assert.equal(result.allowed, true);
+  assert.equal(result.allowed, false);
+  assert.equal(result.needsApproval, true);
+  assert.equal(result.status, "review_required");
+  assert.match(result.reason, /approval_missing_action_hash/);
+});
+
+test("an exact action-bound approval becomes executable only after atomic consumption", async () => {
+  const tg = new TrustGraduation({
+    workspace: "user-123",
+    now,
+    evidence: Array.from({ length: 12 }, () => ({ actionClass: "email.send.external", type: "approved" }))
+  });
+  const context = {
+    principal: "user-123",
+    requestedBy: "mail-agent",
+    target: "buyer@example.com",
+    input: { to: "buyer@example.com", subject: "Hello", body: "Exact body" },
+    constraints: { scope: "once" },
+    expiresAt: "2026-05-30T12:05:00.000Z"
+  };
+  const review = tg.canExecute({ actionClass: "email.send.external", context });
+  const approval = createApprovalGrant({
+    binding: review.actionBinding,
+    grantId: "grant-1",
+    issuer: "principal:user-123",
+    issuedAt: "2026-05-30T12:00:00.000Z"
+  });
+  const result = tg.canExecute({ actionClass: "email.send.external", context, approval });
+
+  assert.equal(result.allowed, false);
   assert.equal(result.needsApproval, false);
-  assert.equal(result.status, "allowed");
+  assert.equal(result.mode, "pending_atomic_consumption");
+  assert.equal(result.requiresAtomicConsumption, true);
+  assert.equal(result.actionBinding.actionHash, approval.actionHash);
+
+  const authorization = await consumeApprovalGrant({
+    binding: result.actionBinding,
+    approval,
+    now: "2026-05-30T12:01:00.000Z",
+    store: createMemoryGrantStore()
+  });
+  assert.equal(authorization.ok, true);
+  assert.equal(authorization.reason, "authorized_and_consumed_exact_action_once");
 });
 
 test("human-only payment class does not become agent-executable", () => {

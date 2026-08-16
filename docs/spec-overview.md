@@ -3,7 +3,7 @@
 Status: alpha draft
 Purpose: define a portable protocol for bounded agent authority
 
-Trust Graduation is an open protocol for deciding what an agent has earned the right to do for a principal, in a specific action class, under explicit constraints, with evidence, approval semantics, and auditability.
+Trust Graduation is an open method and experimental interoperability profile for deciding what an agent has earned the right to do for a principal, in a specific action class, under explicit constraints, with evidence, approval semantics, and auditability.
 
 The protocol does not grant global trust. It evaluates one requested action at a time against policy, evidence, approvals, and rollback expectations.
 
@@ -40,9 +40,10 @@ Evidence may compose outcome quality with source reliability. The default proven
 2. The host evaluates the request against policy and evidence.
 3. The host returns a `Decision`.
 4. If review is needed, the host issues an `ApprovalPacket`.
-5. If a human approves, the bounded action may execute.
-6. Execution produces an audit trail and, where applicable, a receipt.
-7. Outcomes, corrections, violations, and rollbacks become future `EvidenceEvent` rows.
+5. If a human approves, the executor authenticates the issuer and validates the exact grant.
+6. The executor atomically consumes the still-live grant in shared state; only that successful consume authorizes the provider call.
+7. Execution produces an audit trail and, where applicable, a receipt.
+8. Outcomes, corrections, violations, and rollbacks become future `EvidenceEvent` rows.
 
 ## Autonomy Ladder
 

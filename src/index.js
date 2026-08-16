@@ -1,11 +1,18 @@
+import crypto from "node:crypto";
+
 import { buildApprovalPacket } from "./approval.js";
+import { bindAction, validateApprovalGrant } from "./action-binding.js";
 import { levelFromTier, summarizeEvidence, tierFromEvidence } from "./evidence.js";
 import { AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, policyForActionClass } from "./policies.js";
 
 export { buildApprovalPacket } from "./approval.js";
+export { bindAction, canonicalJson, consumeApprovalGrant, createApprovalGrant, createMemoryGrantStore, digestObject, validateApprovalGrant } from "./action-binding.js";
+export { A2A_AUTHORIZATION_EXTENSION_URI, A2A_AUTHORIZATION_MEDIA_TYPE, A2A_RECEIPT_MEDIA_TYPE, a2aAgentExtension, toA2AApprovalMessage, toA2AAuthorizationTask, toA2AReceiptArtifact } from "./a2a.js";
+export { runProviderGateConformance } from "./conformance.js";
 export { DECISION_WEIGHTS, PROVENANCE_WEIGHTS, decisionWeight, emptyEvidenceSummary, evidenceWeight, levelFromTier, provenanceWeight, summarizeEvidence, tierFromEvidence } from "./evidence.js";
 export { createLicenseToken, decodeLicenseToken, licenseAllows } from "./license.js";
 export { ACTION_CLASS_ALIASES, AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, inferExternalSideEffect, inferRiskClass, normalizeActionClass, policyForActionClass } from "./policies.js";
+export { createProviderGate } from "./provider-gate.js";
 
 export class TrustGraduation {
   constructor({ workspace = "", evidence = [], policies = DEFAULT_ACTION_POLICIES, now = () => new Date() } = {}) {
@@ -21,9 +28,9 @@ export class TrustGraduation {
     const evidence = summarizeEvidence(this.evidence, actionClass);
     const tier = tierFromEvidence(evidence);
     const autonomyLevel = levelFromTier(tier);
-    const explicitlyApproved = approval?.state === "approved" || context.approvalState === "approved";
     const highRisk = policy.riskClass === "high" || policy.riskClass === "critical";
-    const createdAt = this.now().toISOString();
+    const currentTime = this.now();
+    const createdAt = currentTime.toISOString();
     const decisionId = `tgd_${createdAt.replace(/[^0-9]/g, "").slice(0, 14)}_${slug(actionClass)}`;
     const requestedAction = context.requestedAction && typeof context.requestedAction === "object"
       ? context.requestedAction
@@ -33,6 +40,37 @@ export class TrustGraduation {
       : policy.constraints && typeof policy.constraints === "object"
         ? policy.constraints
         : {};
+    const approvalPresented = approval?.state === "approved" || context.approvalState === "approved";
+    const actionBinding = bindAction({
+      actionClass: policy.actionClass,
+      workspace: this.workspace,
+      principal: typeof context.principal === "string" ? context.principal : this.workspace,
+      requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+      tenant: typeof context.tenant === "string" ? context.tenant : "",
+      target: typeof context.target === "string"
+        ? context.target
+        : typeof context.recipient === "string"
+          ? context.recipient
+          : "",
+      input: Object.prototype.hasOwnProperty.call(context, "input") ? context.input : requestedAction,
+      constraints,
+      expiresAt: typeof context.expiresAt === "string" && context.expiresAt.trim()
+        ? context.expiresAt
+        : typeof constraints.expires_at === "string" && constraints.expires_at.trim()
+          ? constraints.expires_at
+          : approvalPresented && typeof approval?.expiresAt === "string" && approval.expiresAt.trim()
+            ? approval.expiresAt
+            : new Date(currentTime.getTime() + 10 * 60 * 1000).toISOString(),
+      nonce: typeof context.nonce === "string" && context.nonce.trim()
+        ? context.nonce
+        : approvalPresented && typeof approval?.nonce === "string" && approval.nonce.trim()
+          ? approval.nonce
+          : crypto.randomUUID()
+    });
+    const approvalValidation = approvalPresented
+      ? validateApprovalGrant({ binding: actionBinding, approval, now: currentTime })
+      : { ok: false, reason: "approval_not_presented" };
+    const explicitlyApproved = approvalValidation.ok;
 
     if (policy.actionClass === "payment.initiate" || policy.humanOnly) {
       return decision({
@@ -41,6 +79,7 @@ export class TrustGraduation {
         actionClass: policy.actionClass,
         requestedAction,
         constraints,
+        actionBinding,
         allowed: false,
         needsApproval: true,
         status: "human_only",
@@ -61,6 +100,7 @@ export class TrustGraduation {
         actionClass: policy.actionClass,
         requestedAction,
         constraints,
+        actionBinding,
         allowed: false,
         needsApproval: true,
         status: context.asynchronousApproval ? "deferred" : "review_required",
@@ -69,23 +109,26 @@ export class TrustGraduation {
         tier,
         policy,
         evidence,
-        reason: "External, public, money, legal, or authority-changing actions require explicit human approval.",
+        reason: approvalPresented
+          ? `Presented approval does not authorize this exact action: ${approvalValidation.reason}.`
+          : "External, public, money, legal, or authority-changing actions require explicit human approval.",
         graduationPath: graduationPath({ policy, evidence, nextBestAction: "prepareApprovalPacket", safeFallbackActionClass: "draft.response" }),
         packet: buildApprovalPacket({
           decisionId,
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
-          principal: typeof context.principal === "string" ? context.principal : "",
+          principal: actionBinding.principal,
           actionClass: policy.actionClass,
           requestedAction,
           constraints,
+          actionBinding,
           context,
           policy,
           evidence,
           reason: "Human approval required before this action can execute.",
-          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          requestedBy: actionBinding.requestedBy,
           createdAt,
-          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
+          expiresAt: actionBinding.expiresAt || ""
         })
       });
     }
@@ -97,15 +140,17 @@ export class TrustGraduation {
         actionClass: policy.actionClass,
         requestedAction,
         constraints,
-        allowed: true,
+        actionBinding,
+        allowed: false,
         needsApproval: false,
-        status: hasExecutionConstraints(constraints) ? "allowed_with_constraints" : "allowed",
-        mode: "approved_once",
+        status: "deferred",
+        mode: "pending_atomic_consumption",
         autonomyLevel,
         tier,
         policy,
         evidence,
-        reason: "Human approval permits this specific high-risk action once; the action class remains gated by default."
+        requiresAtomicConsumption: true,
+        reason: "The grant matches this exact action. The executor must atomically consume it before the provider call; validation alone is not execution authority."
       });
     }
 
@@ -116,6 +161,7 @@ export class TrustGraduation {
         actionClass: policy.actionClass,
         requestedAction,
         constraints,
+        actionBinding,
         allowed: false,
         needsApproval: true,
         status: context.asynchronousApproval ? "deferred" : "review_required",
@@ -130,17 +176,18 @@ export class TrustGraduation {
           decisionId,
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
-          principal: typeof context.principal === "string" ? context.principal : "",
+          principal: actionBinding.principal,
           actionClass: policy.actionClass,
           requestedAction,
           constraints,
+          actionBinding,
           context,
           policy,
           evidence,
           reason: "Review required because trust evidence regressed.",
-          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          requestedBy: actionBinding.requestedBy,
           createdAt,
-          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
+          expiresAt: actionBinding.expiresAt || ""
         })
       });
     }
@@ -152,6 +199,7 @@ export class TrustGraduation {
         actionClass: policy.actionClass,
         requestedAction,
         constraints,
+        actionBinding,
         allowed: false,
         needsApproval: true,
         status: context.asynchronousApproval ? "deferred" : "review_required",
@@ -166,17 +214,18 @@ export class TrustGraduation {
           decisionId,
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
-          principal: typeof context.principal === "string" ? context.principal : "",
+          principal: actionBinding.principal,
           actionClass: policy.actionClass,
           requestedAction,
           constraints,
+          actionBinding,
           context,
           policy,
           evidence,
           reason: "Policy requires approval for this action class.",
-          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          requestedBy: actionBinding.requestedBy,
           createdAt,
-          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
+          expiresAt: actionBinding.expiresAt || ""
         })
       });
     }
@@ -188,6 +237,7 @@ export class TrustGraduation {
         actionClass: policy.actionClass,
         requestedAction,
         constraints,
+        actionBinding,
         allowed: false,
         needsApproval: true,
         status: "review_required",
@@ -202,17 +252,18 @@ export class TrustGraduation {
           decisionId,
           workspace: this.workspace,
           scope: typeof context.scope === "string" ? context.scope : "",
-          principal: typeof context.principal === "string" ? context.principal : "",
+          principal: actionBinding.principal,
           actionClass: policy.actionClass,
           requestedAction,
           constraints,
+          actionBinding,
           context,
           policy,
           evidence,
           reason: "More evidence is needed before this action class can run without review.",
-          requestedBy: typeof context.requestedBy === "string" ? context.requestedBy : "agent",
+          requestedBy: actionBinding.requestedBy,
           createdAt,
-          expiresAt: typeof context.expiresAt === "string" ? context.expiresAt : ""
+          expiresAt: actionBinding.expiresAt || ""
         })
       });
     }
@@ -223,6 +274,7 @@ export class TrustGraduation {
       actionClass: policy.actionClass,
       requestedAction,
       constraints,
+      actionBinding,
       allowed: true,
       needsApproval: false,
       status: hasExecutionConstraints(constraints) ? "allowed_with_constraints" : "allowed",

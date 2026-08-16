@@ -21,6 +21,7 @@
     "reason": { "type": "string" },
     "requestedAction": { "type": "object" },
     "constraints": { "type": "object" },
+    "actionBinding": { "type": "object" },
     "context": { "type": "object" },
     "evidence": { "type": "object" },
     "decisions": {
