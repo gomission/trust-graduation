@@ -1,6 +1,7 @@
 import {
   createApprovalGrant,
-  createMemoryGrantStore
+  createMemoryGrantStore,
+  digestObject
 } from "./action-binding.js";
 
 const FIXED_NOW = new Date("2026-08-16T12:00:00.000Z");
@@ -126,6 +127,9 @@ export async function runProviderGateConformance({ createGate } = {}) {
     racing_duplicate_held: race.filter((entry) => entry.ok).length === 1
       && race.filter((entry) => entry.reason === "grant_already_consumed").length === 1
       && afterRace === 2,
+    exact_provider_input_preserved: providerCalls.length === 2
+      && providerInputMatches(providerCalls[0], binding)
+      && providerInputMatches(providerCalls[1], raceBinding),
     result_receipts_linked: receipts.length === 2
       && receipts.every((receipt) => receipt.outcome === "provider_confirmed")
       && receipts.every((receipt) => /^sha256:[a-f0-9]{64}$/.test(receipt.providerResultHash || ""))
@@ -135,7 +139,7 @@ export async function runProviderGateConformance({ createGate } = {}) {
 
   return {
     protocol: "trust-graduation-provider-gate-conformance",
-    version: "0.1",
+    version: "0.2",
     ok: Object.values(checks).every(Boolean),
     checks,
     provider_calls: {
@@ -149,6 +153,14 @@ export async function runProviderGateConformance({ createGate } = {}) {
     },
     receipts_written: receipts.length
   };
+}
+
+function providerInputMatches(call, binding) {
+  try {
+    return digestObject(call?.input) === binding?.inputHash;
+  } catch {
+    return false;
+  }
 }
 
 function exactAction({ nonce, target = "buyer@example.com" } = {}) {

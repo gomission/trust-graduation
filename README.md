@@ -50,11 +50,13 @@ npx trust-graduation init-adapter
 npx trust-graduation conformance ./mission-gate-adapter.mjs --json
 ```
 
-`init-adapter` creates one non-overwriting adapter file. Map its input to one
-existing provider function, then run `conformance`. The runner injects the
-provider and verifies that missing approval, mutation, issuer rejection, store
-failure, replay, and a racing duplicate cannot bypass the boundary. It also
-requires result-linked receipts for successful calls.
+`init-adapter` creates one non-overwriting adapter file. Construct the exact
+canonical provider input before `prepare()`, inject a provider function that
+accepts that object unchanged, then run `conformance`. The runner verifies that
+missing approval, mutation, issuer rejection, store failure, replay, and a
+racing duplicate cannot bypass the boundary. It also rejects adapters that
+change the committed input before the provider and requires result-linked
+receipts for successful calls.
 
 The adapter composes through `createProviderGate({ store,
 authenticateGrant, provider, writeReceipt })`. All four trust-boundary

@@ -345,7 +345,7 @@ export interface StagehandProviderGate {
 
 export interface ProviderGateConformanceResult {
   protocol: "trust-graduation-provider-gate-conformance";
-  version: "0.1";
+  version: "0.2";
   ok: boolean;
   checks: Record<string, boolean>;
   provider_calls: Record<string, number>;

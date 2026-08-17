@@ -21,25 +21,35 @@ npx trust-graduation init-adapter
 The second command creates `mission-gate-adapter.mjs` and refuses to overwrite
 an existing file.
 
-## Minute 2–7: map the existing provider input
+## Minute 2–7: name the exact provider input
 
-Open `mission-gate-adapter.mjs`. Keep the injected `provider`, atomic `store`,
-`authenticateGrant`, and `writeReceipt` dependencies. Change only
-`mapProviderInput()` so its return value matches the arguments already accepted
-by the provider seam.
+Do not transform provider input inside `mission-gate-adapter.mjs`. The object
+committed before approval must be the object delivered to the injected provider.
+Normalize the SDK call once, before `gate.prepare()`, so every field that can
+change the effect is explicit canonical JSON.
 
-The production composition supplies the real dependencies:
+For an object-style SDK, make the application-owned provider seam accept that
+same object unchanged, then supply the real trust-boundary dependencies:
 
 ```js
 import { createGate } from "./mission-gate-adapter.mjs";
 
+const exactProvider = (input) =>
+  octokit.rest.pulls.createReviewComment(input);
+
 const gate = createGate({
-  provider: existingProviderFunction,
+  provider: exactProvider,
   store: sharedAtomicGrantStore,
   authenticateGrant: verifyApprovalIssuer,
   writeReceipt: durableReceiptSink
 });
 ```
+
+If an SDK only accepts positional arguments, the injected provider may
+destructure this exact object, but it must not add effect-bearing defaults,
+timestamps, randomness, targets, or ambient state after approval. Put every
+such value into `action.input` first. The conformance runner rejects an adapter
+that changes the committed provider object after authorization.
 
 `sharedAtomicGrantStore.consume()` must atomically reject revoked or previously
 consumed issuer + tenant + grant identities across every executor. The bundled
@@ -116,7 +126,8 @@ npx trust-graduation conformance ./mission-gate-adapter.mjs --json
 Success prints one `CONFORMANCE_RESULT` with `"ok":true`. Provider counters
 must remain zero after missing approval, mutation, issuer rejection, and atomic
 store failure; remain one after replay; and become two—not three—after two new
-consumers race for a second grant. Two result-linked receipts must exist.
+consumers race for a second grant. `exact_provider_input_preserved` must be
+`true`, and two result-linked receipts must exist.
 
 The runner imports and executes the local adapter module. Review that file just
 as you would any test program before running it.

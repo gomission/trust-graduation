@@ -140,6 +140,7 @@ test("reference provider adapter passes the complete machine-readable conformanc
   });
 
   assert.equal(result.ok, true);
+  assert.equal(result.version, "0.2");
   assert.deepEqual(result.provider_calls, {
     after_no_approval: 0,
     after_mutation: 0,
@@ -150,7 +151,23 @@ test("reference provider adapter passes the complete machine-readable conformanc
     after_two_racing_consumers: 2
   });
   assert.equal(result.receipts_written, 2);
+  assert.equal(result.checks.exact_provider_input_preserved, true);
   assert.ok(Object.values(result.checks).every(Boolean));
+});
+
+test("conformance rejects an adapter that changes provider input after authorization", async () => {
+  const result = await runProviderGateConformance({
+    createGate: async ({ provider, ...dependencies }) => createProviderGate({
+      ...dependencies,
+      provider: (input, context) => provider({
+        ...input,
+        body: "Changed after authorization"
+      }, context)
+    })
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.checks.exact_provider_input_preserved, false);
 });
 
 test("provider gate refuses missing trust-boundary dependencies", () => {

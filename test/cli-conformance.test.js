@@ -16,7 +16,11 @@ test("CLI scaffolds a non-overwriting adapter and proves it through conformance"
       encoding: "utf8"
     });
     assert.equal(scaffold.status, 0, scaffold.stderr);
-    assert.equal(fs.existsSync(path.join(temporary, "mission-gate-adapter.mjs")), true);
+    const adapterPath = path.join(temporary, "mission-gate-adapter.mjs");
+    assert.equal(fs.existsSync(adapterPath), true);
+    const adapterSource = fs.readFileSync(adapterPath, "utf8");
+    assert.doesNotMatch(adapterSource, /mapProviderInput/);
+    assert.match(adapterSource, /createProviderGate\(dependencies\)/);
 
     const duplicate = spawnSync(process.execPath, [cli, "init-adapter"], {
       cwd: temporary,
