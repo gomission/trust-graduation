@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.0-beta.3 — 2026-08-17
+
+- Hardened `createProviderGate()` so the canonical action is snapshotted before
+  asynchronous authority checks and the exact approved object reaches the
+  provider unchanged.
+- Advanced the provider conformance result to `0.2` and added adversarial
+  coverage for post-authorization input transformation, caller mutation,
+  issuer rejection, store failure, replay, and simultaneous consumers.
+- Added a packed-package fifteen-minute scaffold and stopwatch path, plus the
+  MCP hold-to-provider bridge used with `@gomission/mcp@0.3.0-beta.2`.
+- Added strict local Stagehand 4.0.1 boundary examples. They require observed
+  action data and downstream provider evidence, and treat ambiguous browser
+  outcomes as unknown rather than confirmed.
+- Verified A2A 1.0 ProtoJSON compatibility against the released
+  `@a2a-js/sdk@1.0.1` without adding a runtime dependency.
+- Kept the package, schemas, examples, and included documentation Apache-2.0;
+  hosted Mission services and the private Mission engine remain outside this
+  package.
+
 ## 0.2.0-beta.2
 
 - Added a provider-bound `createProviderGate()` composition API with mandatory

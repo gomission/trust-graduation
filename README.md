@@ -294,7 +294,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Core package status: `0.2.0-beta.2` (experimental beta).
+Core package status: `0.2.0-beta.3` (experimental beta candidate).
 
 Portable protocol schema status: experimental v0.1 at `trustgraduation.org/spec/0.1/`.
 
