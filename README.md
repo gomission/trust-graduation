@@ -306,4 +306,7 @@ Schemas describe the draft shape. The package is the JavaScript reference implem
 
 ## License
 
-Apache-2.0.
+Apache-2.0 for this package, its schemas, examples, and included documentation.
+The hosted Mission product, private Mission engine, names, and logos are not
+included in this repository; their availability and trademark rights are
+separate from this code license.
