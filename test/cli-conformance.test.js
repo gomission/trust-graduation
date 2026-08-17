@@ -44,3 +44,14 @@ test("CLI scaffolds a non-overwriting adapter and proves it through conformance"
     fs.rmSync(temporary, { recursive: true, force: true });
   }
 });
+
+test("stagehand demo fails with an exact install command when the optional runtime is absent", () => {
+  const result = spawnSync(process.execPath, [cli, "stagehand-demo"], {
+    cwd: repo,
+    encoding: "utf8"
+  });
+
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /stagehand-demo requires @browserbasehq\/stagehand@4\.0\.1/);
+  assert.match(result.stderr, /trust-graduation stagehand-demo/);
+});

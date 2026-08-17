@@ -37,10 +37,28 @@ if (command === "demo") {
     process.stdout.write(`CONFORMANCE_RESULT ${JSON.stringify(result)}\n`);
     if (!result.ok) process.exitCode = 1;
   }
+} else if (command === "stagehand-demo") {
+  try {
+    await import(new URL("../examples/stagehand-local-browser-gate.mjs", import.meta.url).href);
+  } catch (error) {
+    if (
+      error?.code === "ERR_MODULE_NOT_FOUND" &&
+      String(error?.message || "").includes("@browserbasehq/stagehand")
+    ) {
+      process.stderr.write(
+        "stagehand-demo requires @browserbasehq/stagehand@4.0.1. " +
+        "Run: npx -y --package @trust-graduation/core@beta " +
+        "--package @browserbasehq/stagehand@4.0.1 trust-graduation stagehand-demo\n"
+      );
+      process.exitCode = 2;
+    } else {
+      throw error;
+    }
+  }
 } else if (command === "--version" || command === "-v") {
   const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   process.stdout.write(`${pkg.version}\n`);
 } else {
-  process.stderr.write("trust-graduation [demo|init-adapter [path]|conformance <adapter> [--json]|--version]\n");
+  process.stderr.write("trust-graduation [demo|stagehand-demo|init-adapter [path]|conformance <adapter> [--json]|--version]\n");
   process.exitCode = command === "--help" || command === "-h" ? 0 : 2;
 }

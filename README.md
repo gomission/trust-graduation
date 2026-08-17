@@ -86,6 +86,21 @@ requires downstream provider evidence after the DOM operation. A successful
 click without that evidence is an unknown outcome, not a confirmed receipt.
 See [docs/stagehand-provider-gate.md](docs/stagehand-provider-gate.md).
 
+With Node.js 22.18+ and local Chrome, the candidate also ships a credential-free
+real-browser proof:
+
+```bash
+npx -y \
+  --package @trust-graduation/core@beta \
+  --package @browserbasehq/stagehand@4.0.1 \
+  trust-graduation stagehand-demo
+```
+
+The machine-readable `REAL_STAGEHAND_GATE_RESULT` reports one deterministic
+Stagehand call, one matching loopback server event, one receipt, zero LLM
+calls, and fail-closed mutation/race/replay results. It remains local protocol
+evidence, not outside adoption.
+
 ## Minimal Embed
 
 ```js

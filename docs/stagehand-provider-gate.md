@@ -32,6 +32,57 @@ Mission uses only that object overload. Natural-language instructions and
 unresolved `%variables%` are rejected because the final selector, method, and
 arguments would not yet be the exact action reviewed by the principal.
 
+### Stagehand 4.0.1 local-browser initialization
+
+Stagehand `4.0.1` checks for a configured model or Browserbase Model Gateway
+before dispatching every `act()` call, including the deterministic object
+overload. A Browserbase session with managed inference or an ordinary configured
+model satisfies that controller precondition.
+
+For a credential-free local-browser proof, supply a client-model sentinel that
+fails if inference is ever requested:
+
+```js
+let llmCalls = 0;
+const stagehand = await Stagehand.create({
+  browser,
+  selfHeal: false,
+  model: {
+    async generate() {
+      llmCalls += 1;
+      throw new Error("inference is disabled for this governed deterministic action");
+    }
+  }
+});
+```
+
+After the governed action, assert `llmCalls === 0`. This satisfies Stagehand's
+initialization check without turning the final action back into an inferred
+instruction. If the callback is invoked, fail the run and treat the consumed
+grant as an unknown outcome.
+
+Local Stagehand browsers do not expose a Browserbase `sessionId`; a local-only
+test host must bind its own stable logical session identifier in
+`createStagehandProviderAction()` and return the same value from
+`getPageContext()`. Production Browserbase integrations should bind the actual
+`stagehand.browser.sessionId`.
+
+The package includes a credential-free loopback proof that drives an actual
+local Chrome through Stagehand, confirms one application-owned server event,
+and verifies mutation, racing-duplicate, and replay denial:
+
+```bash
+npx -y \
+  --package @trust-graduation/core@beta \
+  --package @browserbasehq/stagehand@4.0.1 \
+  trust-graduation stagehand-demo
+```
+
+It requires Node.js `22.18.0` or newer (Stagehand's requirement) and a local
+Chrome installation. The example uses the process-local grant store and a
+loopback application solely as an executable protocol proof; it is not a
+production store, external adoption, or a Browserbase session.
+
 ## Integration shape
 
 First observe and select the final action without executing it:
@@ -41,7 +92,16 @@ const { data: candidates } = await stagehand.observe(
   "find the final order submit button"
 );
 const selected = candidates[0];
+if (!selected?.method) throw new Error("observed Action has no deterministic method");
+const exactAction = {
+  selector: selected.selector,
+  description: selected.description,
+  method: selected.method,
+  arguments: selected.arguments ?? []
+};
 const page = await stagehand.browser.context.activePage();
+const sessionId = stagehand.browser.sessionId;
+if (!page || !sessionId) throw new Error("a Browserbase page and session are required");
 
 const requested = createStagehandProviderAction({
   actionClass: "browser.order.submit.external",
@@ -49,10 +109,10 @@ const requested = createStagehandProviderAction({
   principal: "principal-123",
   requestedBy: "checkout-agent",
   tenant: "tenant-123",
-  stagehandAction: selected,
+  stagehandAction: exactAction,
   pageUrl: await page.url(),
   pageId: page.pageId,
-  sessionId: stagehand.browser.sessionId,
+  sessionId,
   effect: {
     target: "orders/order-42/submit",
     payload: { orderId: "order-42", quantity: 2 },
