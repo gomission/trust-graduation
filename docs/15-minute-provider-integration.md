@@ -66,6 +66,11 @@ const binding = gate.prepare(action);
 await presentBindingForAuthenticatedApproval(binding);
 ```
 
+Provider actions must contain canonical JSON values: strings, finite numbers,
+booleans, null, arrays, and plain objects. Convert dates, buffers, class
+instances, and provider SDK objects to explicit reviewable fields before
+calling `prepare()`.
+
 The authenticated approval service returns a single-use grant for that exact
 binding. A chat reply or `{ state: "approved" }` is not a grant.
 
@@ -83,9 +88,12 @@ if (!execution.ok) {
 return execution.providerResult;
 ```
 
-`execute()` re-binds the actual input, validates and authenticates the grant,
-atomically consumes it, invokes the provider, hashes JSON-compatible provider
-evidence, and sends a result-linked receipt to the required receipt sink.
+`execute()` takes an immutable canonical snapshot, re-binds that actual input,
+validates and authenticates the grant, atomically consumes it, invokes the
+provider with the snapshot, hashes JSON-compatible provider evidence, and sends
+a result-linked receipt to the required receipt sink. Mutating the caller's
+original nested object during asynchronous authentication or storage cannot
+change the provider payload.
 
 The reference receipt is result-linked but not cryptographically signed by
 this helper. A production sink should sign or wrap it with the organization's

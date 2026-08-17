@@ -61,6 +61,13 @@ authenticateGrant, provider, writeReceipt })`. All four trust-boundary
 dependencies are mandatory. The detailed stopwatch path and production limits
 are in [docs/15-minute-provider-integration.md](docs/15-minute-provider-integration.md).
 
+The Gate snapshots and deep-freezes the canonical JSON action before any
+asynchronous issuer or store check. The provider therefore receives the same
+nested target/input/constraints that were hashed, even if the caller mutates
+its original object while authority is being checked. Provider actions must use
+plain canonical JSON values; class instances and other exotic objects fail
+before the provider boundary.
+
 The helper's receipt is result-linked but unsigned. Production hosts must add
 their own receipt signature/journal and reconcile crashes or unknown provider
 outcomes; atomic Key consumption is not exactly-once provider execution.
@@ -69,6 +76,15 @@ Passing the runner proves the adapter contract against an instrumented
 provider. It is not independent adoption or a production security
 certification; the real repository must compose the same factory around its
 existing sandbox provider seam.
+
+### Browserbase Stagehand
+
+The next-beta candidate includes an experimental Stagehand composition for one
+named browser boundary. It accepts only a deterministic observed `Action`,
+binds the page/tab/session and application-specific target plus payload, and
+requires downstream provider evidence after the DOM operation. A successful
+click without that evidence is an unknown outcome, not a confirmed receipt.
+See [docs/stagehand-provider-gate.md](docs/stagehand-provider-gate.md).
 
 ## Minimal Embed
 

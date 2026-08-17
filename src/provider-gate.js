@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 
 import {
   bindAction,
+  canonicalJson,
   consumeApprovalGrant,
   digestObject,
   validateApprovalGrant
@@ -40,17 +41,20 @@ export function createProviderGate({
 
   function prepare(action = {}) {
     const checkedAt = asDate(now(), "now");
-    return bindExecutionAction(action, {
-      expiresAt: action.expiresAt || new Date(checkedAt.getTime() + grantLifetimeMs).toISOString(),
-      nonce: action.nonce || String(createId())
+    const snapshot = snapshotAction(action);
+    return bindExecutionAction(snapshot, {
+      expiresAt: snapshot.expiresAt || new Date(checkedAt.getTime() + grantLifetimeMs).toISOString(),
+      nonce: snapshot.nonce || String(createId())
     });
   }
 
   async function execute({ binding, approval, action } = {}) {
     const checkedAt = asDate(now(), "now");
+    let snapshot;
     let actualBinding;
     try {
-      actualBinding = bindExecutionAction(action, {
+      snapshot = snapshotAction(action);
+      actualBinding = bindExecutionAction(snapshot, {
         expiresAt: binding?.expiresAt || "",
         nonce: binding?.nonce || ""
       });
@@ -70,7 +74,7 @@ export function createProviderGate({
       issuerAuthentication = await authenticateGrant(Object.freeze({
         approval,
         binding: actualBinding,
-        action: freezeAction(action)
+        action: snapshot
       }));
     } catch {
       return denied("grant_issuer_authentication_unavailable", { binding: actualBinding });
@@ -96,8 +100,8 @@ export function createProviderGate({
 
     let providerResult;
     try {
-      providerResult = await provider(action.input, Object.freeze({
-        action: freezeAction(action),
+      providerResult = await provider(snapshot.input, Object.freeze({
+        action: snapshot,
         binding: actualBinding,
         approval,
         authorization
@@ -259,8 +263,54 @@ function denied(reason, extra = {}) {
   };
 }
 
-function freezeAction(action = {}) {
-  return Object.freeze({ ...action });
+function snapshotAction(action) {
+  if (!action || typeof action !== "object" || Array.isArray(action)) {
+    throw new Error("action must be an object");
+  }
+  assertCanonicalValue(action, "action", new WeakSet());
+  const canonical = canonicalSnapshot(action);
+  return deepFreeze(canonical);
+}
+
+function assertCanonicalValue(value, name, seen) {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  ) return;
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new Error(`${name} contains a non-finite number`);
+    return;
+  }
+  if (!value || typeof value !== "object") {
+    throw new Error(`${name} must contain only canonical JSON values`);
+  }
+  if (seen.has(value)) throw new Error(`${name} contains a cycle`);
+  seen.add(value);
+  if (!Array.isArray(value)) {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) {
+      throw new Error(`${name} must contain only plain objects`);
+    }
+  }
+  for (const [key, entry] of Object.entries(value)) {
+    assertCanonicalValue(entry, `${name}.${key}`, seen);
+  }
+  seen.delete(value);
+}
+
+function canonicalSnapshot(value) {
+  if (value === undefined) return undefined;
+  return JSON.parse(canonicalJson(value));
+}
+
+function deepFreeze(value) {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const entry of Object.values(value)) deepFreeze(entry);
+  }
+  return value;
 }
 
 function asDate(value, name) {

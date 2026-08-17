@@ -13,6 +13,7 @@ export { DECISION_WEIGHTS, PROVENANCE_WEIGHTS, decisionWeight, emptyEvidenceSumm
 export { createLicenseToken, decodeLicenseToken, licenseAllows } from "./license.js";
 export { ACTION_CLASS_ALIASES, AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, inferExternalSideEffect, inferRiskClass, normalizeActionClass, policyForActionClass } from "./policies.js";
 export { createProviderGate } from "./provider-gate.js";
+export { createStagehandProviderAction, createStagehandProviderGate } from "./stagehand-provider-gate.js";
 
 export class TrustGraduation {
   constructor({ workspace = "", evidence = [], policies = DEFAULT_ACTION_POLICIES, now = () => new Date() } = {}) {

@@ -260,6 +260,89 @@ export interface ProviderGateDependencies {
   grantLifetimeMs?: number;
 }
 
+export interface StagehandDeterministicAction {
+  selector: string;
+  description: string;
+  method: string;
+  arguments: string[];
+}
+
+export interface StagehandBoundPage {
+  url: string;
+  origin: string;
+  pageId: string;
+  sessionId: string;
+}
+
+export interface StagehandExpectedEffect {
+  target: string;
+  payload: unknown;
+  payloadHash: string;
+  expectedEvidence?: unknown;
+}
+
+export interface StagehandProviderAction extends ProviderAction {
+  input: {
+    protocol: "trust-graduation-stagehand-provider-action";
+    version: "0.1";
+    stagehandAction: StagehandDeterministicAction;
+    page: StagehandBoundPage;
+    effect: StagehandExpectedEffect;
+  };
+  constraints: Record<string, unknown> & {
+    deterministicStagehandActionRequired: true;
+    downstreamEffectConfirmationRequired: true;
+    rawStagehandBypassProhibited: true;
+  };
+}
+
+export interface StagehandPageContext {
+  url: string;
+  pageId: string;
+  sessionId: string;
+  page?: unknown;
+}
+
+export interface StagehandEffectConfirmation {
+  ok: boolean;
+  providerEventId?: string;
+  target?: string;
+  payloadHash?: string;
+  evidence?: unknown;
+}
+
+export interface StagehandProviderGateDependencies {
+  stagehand: {
+    act(action: StagehandDeterministicAction, options?: { page?: unknown }): unknown | Promise<unknown>;
+  };
+  getPageContext(input: Readonly<{
+    action: StagehandProviderAction;
+    binding: ActionBinding;
+  }>): StagehandPageContext | Promise<StagehandPageContext>;
+  confirmEffect(input: Readonly<{
+    expected: Readonly<StagehandExpectedEffect>;
+    action: StagehandDeterministicAction;
+    page: Readonly<StagehandBoundPage>;
+    stagehandResult: unknown;
+    context: Readonly<Record<string, unknown>>;
+  }>): StagehandEffectConfirmation | Promise<StagehandEffectConfirmation>;
+  store: AtomicGrantStore;
+  authenticateGrant: ProviderGateDependencies["authenticateGrant"];
+  writeReceipt: ProviderGateDependencies["writeReceipt"];
+  now?: () => Date | string;
+  createId?: () => string;
+  grantLifetimeMs?: number;
+}
+
+export interface StagehandProviderGate {
+  prepare(action: StagehandProviderAction): ActionBinding;
+  execute(input: {
+    binding: ActionBinding;
+    approval?: Partial<ApprovalGrant> | null;
+    action: StagehandProviderAction;
+  }): Promise<ProviderGateExecution>;
+}
+
 export interface ProviderGateConformanceResult {
   protocol: "trust-graduation-provider-gate-conformance";
   version: "0.1";
@@ -296,6 +379,28 @@ export function validateApprovalGrant(input: { binding: ActionBinding; approval?
 export function createMemoryGrantStore(): AtomicGrantStore;
 export function consumeApprovalGrant(input: { binding: ActionBinding; approval?: Partial<ApprovalGrant> | null; now?: Date | string; store?: AtomicGrantStore }): Promise<ApprovalGrantValidation>;
 export function createProviderGate(dependencies: ProviderGateDependencies): ProviderGate;
+export function createStagehandProviderAction(input: {
+  actionClass: string;
+  workspace?: string;
+  principal?: string;
+  requestedBy?: string;
+  tenant?: string;
+  stagehandAction: StagehandDeterministicAction;
+  pageUrl: string;
+  pageId: string;
+  sessionId: string;
+  effect: {
+    target: string;
+    payload: unknown;
+    expectedEvidence?: unknown;
+  };
+  constraints?: Record<string, unknown>;
+  expiresAt?: string;
+  nonce?: string;
+}): StagehandProviderAction;
+export function createStagehandProviderGate(
+  dependencies: StagehandProviderGateDependencies
+): StagehandProviderGate;
 export function runProviderGateConformance(input: {
   createGate(dependencies: ProviderGateDependencies): ProviderGate | Promise<ProviderGate>;
 }): Promise<ProviderGateConformanceResult>;

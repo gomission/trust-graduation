@@ -157,3 +157,41 @@ test("provider gate refuses missing trust-boundary dependencies", () => {
   assert.throws(() => createProviderGate(), /store\.consume is required/);
   assert.throws(() => createProviderGate({ store: createMemoryGrantStore() }), /authenticateGrant is required/);
 });
+
+test("provider gate executes an immutable canonical snapshot across asynchronous trust checks", async () => {
+  const requested = action();
+  let providerInput;
+  const gate = createProviderGate(dependencies({
+    authenticateGrant: async () => {
+      requested.input.body = "Mutated while issuer authentication awaited";
+      return true;
+    },
+    provider: async (input) => {
+      providerInput = input;
+      assert.throws(() => {
+        input.body = "Provider-side mutation";
+      }, TypeError);
+      return { providerId: "provider-snapshot", input };
+    }
+  }));
+  const binding = gate.prepare(requested);
+  const result = await gate.execute({
+    binding,
+    approval: grant(binding, "grant-snapshot"),
+    action: requested
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(providerInput.body, "Exact body");
+  assert.equal(requested.input.body, "Mutated while issuer authentication awaited");
+});
+
+test("provider gate rejects non-canonical provider inputs before binding or execution", async () => {
+  const gate = createProviderGate(dependencies());
+  const withDate = action({ input: { createdAt: new Date("2026-08-16T12:00:00.000Z") } });
+
+  assert.throws(() => gate.prepare(withDate), /only plain objects/);
+  const result = await gate.execute({ binding: {}, approval: null, action: withDate });
+  assert.equal(result.reason, "actual_action_invalid");
+  assert.equal(result.providerCalled, false);
+});
