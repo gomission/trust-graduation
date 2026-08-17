@@ -54,6 +54,7 @@
     "demo": "node src/cli.js demo",
     "conformance:self": "node src/cli.js conformance examples/provider-gate-adapter.mjs --json",
     "example:a2a": "node examples/a2a-authority-continuation.js",
+    "conformance:a2a-sdk": "node examples/a2a-official-sdk-proof.mjs",
     "docs:pdf": "python3 scripts/generate-protocol-pdf.py",
     "docs:update": "node scripts/update-protocol-docs.mjs"
   }

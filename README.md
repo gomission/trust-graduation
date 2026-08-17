@@ -154,11 +154,20 @@ tests. Storage failure, a racing duplicate, or a replay fails closed.
 
 ## A2A Exact Action Authorization
 
-The first standards-facing profile targets the authorization gap intentionally left open by A2A v1. An agent can map a Trust Graduation review decision to `TASK_STATE_AUTH_REQUIRED`, carry an immutable action binding in extension metadata, receive an exact single-use grant, and return receipt evidence as a Task Artifact.
+The first standards-facing profile targets the authorization gap intentionally left open by final A2A 1.0. An agent can map a Trust Graduation review decision to `TASK_STATE_AUTH_REQUIRED`, carry an immutable action binding in extension metadata, receive an exact single-use grant, and return receipt evidence as a Task Artifact.
 
 - Specification: [docs/a2a-action-authorization-extension-v1.md](docs/a2a-action-authorization-extension-v1.md)
 - Extension URI: `https://trustgraduation.org/extensions/a2a/action-authorization/v1`
+- HTTP activation: `a2aHttpHeaders()` returns `A2A-Version: 1.0` and the exact `A2A-Extensions` value
+- Compatibility evidence: emitted ProtoJSON round-trips through official `@a2a-js/sdk@1.0.1`
 - Runnable example: `npm run example:a2a`
+
+Optional official-SDK proof (the SDK remains outside runtime dependencies):
+
+```bash
+npm install --no-save @a2a-js/sdk@1.0.1
+npm run conformance:a2a-sdk
+```
 
 The extension is not identity or OAuth. Implementers must authenticate the grant issuer or verify a signature, then call `consumeApprovalGrant()` against a shared atomic store before invoking the provider. Validation alone never authorizes execution.
 

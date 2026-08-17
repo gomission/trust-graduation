@@ -2,7 +2,10 @@
 
 Status: experimental implementation draft
 
-Updated: 2026-08-16
+Updated: 2026-08-17
+
+A2A compatibility target: `1.0` (verified against the official
+`@a2a-js/sdk@1.0.1` ProtoJSON codecs)
 
 Extension URI:
 
@@ -30,6 +33,7 @@ An agent declares support in its Agent Card:
         "required": false,
         "params": {
           "version": "1.0",
+          "a2aProtocolVersion": "1.0",
           "taskState": "TASK_STATE_AUTH_REQUIRED",
           "authorizationMediaType": "application/vnd.trustgraduation.authorization+json;version=1",
           "receiptMediaType": "application/vnd.trustgraduation.execution-receipt+json;version=1"
@@ -43,10 +47,26 @@ An agent declares support in its Agent Card:
 The client requests activation using the A2A binding's normal mechanism. For HTTP:
 
 ```http
+A2A-Version: 1.0
 A2A-Extensions: https://trustgraduation.org/extensions/a2a/action-authorization/v1
 ```
 
+Both service parameters are required for a v1 HTTP request that activates this
+extension. The package builds them without transport dependencies:
+
+```js
+import { a2aHttpHeaders } from "@trust-graduation/core";
+
+const headers = a2aHttpHeaders();
+```
+
 An extension-aware response should echo the activated extension URI.
+
+The reference functions emit A2A v1 ProtoJSON wire objects. They round-trip
+through the official JavaScript SDK's `Task.fromJSON`, `Message.fromJSON`,
+`Artifact.fromJSON`, and `AgentExtension.fromJSON` codecs. SDK-native objects
+can therefore be obtained by passing the returned values to those codecs; the
+core package does not add the official SDK as a runtime dependency.
 
 ## Exact action binding
 

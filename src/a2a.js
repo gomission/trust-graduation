@@ -1,6 +1,35 @@
 export const A2A_AUTHORIZATION_EXTENSION_URI = "https://trustgraduation.org/extensions/a2a/action-authorization/v1";
 export const A2A_AUTHORIZATION_MEDIA_TYPE = "application/vnd.trustgraduation.authorization+json;version=1";
 export const A2A_RECEIPT_MEDIA_TYPE = "application/vnd.trustgraduation.execution-receipt+json;version=1";
+export const A2A_PROTOCOL_VERSION = "1.0";
+export const A2A_VERSION_HEADER = "A2A-Version";
+export const A2A_EXTENSIONS_HEADER = "A2A-Extensions";
+
+/** Build the two HTTP service-parameter headers required to activate this A2A v1 extension. */
+export function a2aHttpHeaders({
+  protocolVersion = A2A_PROTOCOL_VERSION,
+  extensions = [A2A_AUTHORIZATION_EXTENSION_URI]
+} = {}) {
+  if (String(protocolVersion) !== A2A_PROTOCOL_VERSION) {
+    throw new Error(`unsupported A2A protocol version: ${protocolVersion}`);
+  }
+  const values = Array.isArray(extensions) ? extensions : [extensions];
+  const normalized = [...new Set(values.map((value) => String(value || "").trim()))];
+  if (normalized.length === 0 || normalized.some((value) => !value || /[\r\n,]/.test(value))) {
+    throw new Error("extensions must contain one or more comma-safe URI strings");
+  }
+  for (const value of normalized) {
+    try {
+      new URL(value);
+    } catch {
+      throw new Error(`invalid A2A extension URI: ${value}`);
+    }
+  }
+  return {
+    [A2A_VERSION_HEADER]: A2A_PROTOCOL_VERSION,
+    [A2A_EXTENSIONS_HEADER]: normalized.join(",")
+  };
+}
 
 export function a2aAgentExtension({ required = false } = {}) {
   return {
@@ -9,6 +38,7 @@ export function a2aAgentExtension({ required = false } = {}) {
     required: Boolean(required),
     params: {
       version: "1.0",
+      a2aProtocolVersion: A2A_PROTOCOL_VERSION,
       taskState: "TASK_STATE_AUTH_REQUIRED",
       authorizationMediaType: A2A_AUTHORIZATION_MEDIA_TYPE,
       receiptMediaType: A2A_RECEIPT_MEDIA_TYPE

@@ -5,8 +5,12 @@ import path from "node:path";
 
 import {
   A2A_AUTHORIZATION_EXTENSION_URI,
+  A2A_EXTENSIONS_HEADER,
+  A2A_PROTOCOL_VERSION,
+  A2A_VERSION_HEADER,
   TrustGraduation,
   a2aAgentExtension,
+  a2aHttpHeaders,
   createApprovalGrant,
   toA2AApprovalMessage,
   toA2AAuthorizationTask,
@@ -36,6 +40,25 @@ test("Agent Card extension declaration is versioned and optional by default", ()
   assert.equal(extension.uri, A2A_AUTHORIZATION_EXTENSION_URI);
   assert.equal(extension.required, false);
   assert.equal(extension.params.version, "1.0");
+  assert.equal(extension.params.a2aProtocolVersion, "1.0");
+});
+
+test("HTTP activation binds the final A2A v1 protocol and extension service parameters", () => {
+  assert.equal(A2A_PROTOCOL_VERSION, "1.0");
+  assert.equal(A2A_VERSION_HEADER, "A2A-Version");
+  assert.equal(A2A_EXTENSIONS_HEADER, "A2A-Extensions");
+  assert.deepEqual(a2aHttpHeaders(), {
+    "A2A-Version": "1.0",
+    "A2A-Extensions": A2A_AUTHORIZATION_EXTENSION_URI
+  });
+  assert.deepEqual(a2aHttpHeaders({ extensions: [A2A_AUTHORIZATION_EXTENSION_URI, "https://example.com/extensions/audit/v1", A2A_AUTHORIZATION_EXTENSION_URI] }), {
+    "A2A-Version": "1.0",
+    "A2A-Extensions": `${A2A_AUTHORIZATION_EXTENSION_URI},https://example.com/extensions/audit/v1`
+  });
+  assert.throws(() => a2aHttpHeaders({ protocolVersion: "0.3" }), /unsupported A2A protocol version/);
+  assert.throws(() => a2aHttpHeaders({ extensions: [] }), /comma-safe URI strings/);
+  assert.throws(() => a2aHttpHeaders({ extensions: "https://example.com/x\r\nInjected: yes" }), /comma-safe URI strings/);
+  assert.throws(() => a2aHttpHeaders({ extensions: "not a URI" }), /invalid A2A extension URI/);
 });
 
 test("review decision maps to an A2A v1 AUTH_REQUIRED task with extension metadata", () => {

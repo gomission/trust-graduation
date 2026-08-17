@@ -407,7 +407,14 @@ export function runProviderGateConformance(input: {
 export const A2A_AUTHORIZATION_EXTENSION_URI: string;
 export const A2A_AUTHORIZATION_MEDIA_TYPE: string;
 export const A2A_RECEIPT_MEDIA_TYPE: string;
+export const A2A_PROTOCOL_VERSION: "1.0";
+export const A2A_VERSION_HEADER: "A2A-Version";
+export const A2A_EXTENSIONS_HEADER: "A2A-Extensions";
 export function a2aAgentExtension(input?: { required?: boolean }): Record<string, unknown>;
+export function a2aHttpHeaders(input?: {
+  protocolVersion?: "1.0";
+  extensions?: string | string[];
+}): { "A2A-Version": "1.0"; "A2A-Extensions": string };
 export function toA2AAuthorizationTask(input: Record<string, unknown>): Record<string, unknown>;
 export function toA2AApprovalMessage(input: Record<string, unknown>): Record<string, unknown>;
 export function toA2AReceiptArtifact(input: Record<string, unknown>): Record<string, unknown>;

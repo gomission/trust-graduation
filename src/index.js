@@ -7,7 +7,7 @@ import { AUTONOMY_LEVELS, DEFAULT_ACTION_POLICIES, policyForActionClass } from "
 
 export { buildApprovalPacket } from "./approval.js";
 export { bindAction, canonicalJson, consumeApprovalGrant, createApprovalGrant, createMemoryGrantStore, digestObject, validateApprovalGrant } from "./action-binding.js";
-export { A2A_AUTHORIZATION_EXTENSION_URI, A2A_AUTHORIZATION_MEDIA_TYPE, A2A_RECEIPT_MEDIA_TYPE, a2aAgentExtension, toA2AApprovalMessage, toA2AAuthorizationTask, toA2AReceiptArtifact } from "./a2a.js";
+export { A2A_AUTHORIZATION_EXTENSION_URI, A2A_AUTHORIZATION_MEDIA_TYPE, A2A_EXTENSIONS_HEADER, A2A_PROTOCOL_VERSION, A2A_RECEIPT_MEDIA_TYPE, A2A_VERSION_HEADER, a2aAgentExtension, a2aHttpHeaders, toA2AApprovalMessage, toA2AAuthorizationTask, toA2AReceiptArtifact } from "./a2a.js";
 export { runProviderGateConformance } from "./conformance.js";
 export { DECISION_WEIGHTS, PROVENANCE_WEIGHTS, decisionWeight, emptyEvidenceSummary, evidenceWeight, levelFromTier, provenanceWeight, summarizeEvidence, tierFromEvidence } from "./evidence.js";
 export { createLicenseToken, decodeLicenseToken, licenseAllows } from "./license.js";
