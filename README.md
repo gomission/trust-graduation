@@ -47,7 +47,7 @@ Try the guided recovery walkthrough (Node.js 18+
 on macOS or Linux; use WSL on Windows):
 
 ```bash
-npx -y @trust-graduation/core@0.2.0-beta.5 turn-demo
+npx -y --package=https://github.com/gomission/trust-graduation/releases/download/v0.2.0-beta.5/trust-graduation-core-0.2.0-beta.5.tgz trust-graduation turn-demo
 ```
 
 It kills and restarts real workers, narrates four outcomes, and saves the host

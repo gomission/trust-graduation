@@ -35,7 +35,7 @@ restart; an unresolved effect stays unknown instead of triggering a resend.
 Run the small walkthrough:
 
 ```bash
-npx -y @trust-graduation/core@0.2.0-beta.5 turn-demo
+npx -y --package=https://github.com/gomission/trust-graduation/releases/download/v0.2.0-beta.5/trust-graduation-core-0.2.0-beta.5.tgz trust-graduation turn-demo
 ```
 
 Run the [MCP version](../examples/mcp-recovery/README.md), or map a workflow onto

@@ -10,7 +10,8 @@ From this checkout, on Node.js 18+ and a local POSIX filesystem:
 node src/cli.js conformance-turns ./examples/turn-workflow-adapter.mjs --json
 ```
 
-For your own adapter after installing `@trust-graduation/core@0.2.0-beta.5`:
+For your own adapter after installing the beta.5 tarball from the
+[GitHub release](https://github.com/gomission/trust-graduation/releases/tag/v0.2.0-beta.5):
 
 ```bash
 npx trust-graduation conformance-turns ./adapter.mjs --output ./adapter-proof

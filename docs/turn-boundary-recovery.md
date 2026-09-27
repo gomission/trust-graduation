@@ -10,10 +10,11 @@ or a guarantee of exactly-once delivery by an external service.
 
 Requirements: Node.js 18+ and a local POSIX filesystem (macOS or Linux;
 use WSL on Windows). No account, API key, model, or external service is needed.
-The package downloads on first use:
+The verified GitHub prerelease tarball downloads on first use (npm publication
+is awaiting account two-factor authentication):
 
 ```bash
-npx -y @trust-graduation/core@0.2.0-beta.5 turn-demo --output ./recovery-proof
+npx -y --package=https://github.com/gomission/trust-graduation/releases/download/v0.2.0-beta.5/trust-graduation-core-0.2.0-beta.5.tgz trust-graduation turn-demo --output ./recovery-proof
 ```
 
 Or run from source, with Git and no dependency installation:
