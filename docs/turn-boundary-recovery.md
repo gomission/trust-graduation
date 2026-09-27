@@ -8,20 +8,23 @@ or a guarantee of exactly-once delivery by an external service.
 
 ## Run the walkthrough
 
-Requirements: Git, Node.js 18+ and a local POSIX filesystem (macOS or Linux;
-use WSL on Windows). No npm install, account, API key, model, or service is
-needed. This is a source candidate in [PR #1](https://github.com/gomission/trust-graduation/pull/1),
-not included in the published `0.2.0-beta.4` npm package.
-
-From a new directory:
+Requirements: Node.js 18+ and a local POSIX filesystem (macOS or Linux;
+use WSL on Windows). No account, API key, model, or external service is needed.
+The package downloads on first use:
 
 ```bash
-git clone --branch codex/approval-turn-boundary --single-branch https://github.com/gomission/trust-graduation.git trust-graduation-recovery
+npx -y @trust-graduation/core@0.2.0-beta.5 turn-demo --output ./recovery-proof
+```
+
+Or run from source, with Git and no dependency installation:
+
+```bash
+git clone https://github.com/gomission/trust-graduation.git trust-graduation-recovery
 cd trust-graduation-recovery
 npm run demo:turns -- --output ./recovery-proof
 ```
 
-If you already have this branch checked out, run only the last command. The
+If you already have this checkout, run only the last command. The
 output directory must not exist; choose a new name for another run. Omit
 `--output` to get a fresh temporary directory automatically. The directory and
 all evidence remain on disk after the program exits.
@@ -136,6 +139,7 @@ its independent lookup exposes.
 | Stored receipt disagrees with provider evidence | Verification failure; no resend |
 | Arguments or policy change under an existing request ID | Conflict; no new request or effect |
 | Stale lookup returns after a newer verified result | Cannot overwrite the newer completion |
+| Original provider response fails after concurrent reconciliation | Cannot downgrade the verified completion or its confirmed receipt |
 | Retry of a persisted decision after grant expiry | Same decision history; execution still fails on expiry |
 
 ## Persistence and limits
@@ -148,6 +152,11 @@ Competing writers attempt the same next revision; one wins. A dead writer can
 leave an ignored temporary file, not a visible partial record or a lock that
 another executor must guess is stale. Grant consumption uses the same
 non-overwriting publication mechanism. Receipts are separate files.
+
+For the same action and grant, a confirmed receipt is monotonic: a late
+unknown-outcome write cannot downgrade it. State failures also check the
+execution revision so a delayed provider error cannot undo a newer completion.
+Implement both rules when replacing the file store.
 
 This example assumes a trusted local directory and a POSIX filesystem with
 atomic hard links; it does not cover network filesystems, disk loss, malicious

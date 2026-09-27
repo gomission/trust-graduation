@@ -11,9 +11,13 @@ const command = process.argv[2] || "demo";
 
 if (command === "demo") {
   await runExactKeyDemo();
-} else if (command === "turn-demo") {
-  let outputDir, json = false, usageError;
+} else if (command === "turn-demo" || command === "conformance-turns") {
+  let outputDir, adapterPath, json = false, usageError;
   const args = process.argv.slice(3);
+  if (command === "conformance-turns") {
+    if (!args[0] || args[0].startsWith("--")) usageError = "Adapter path required: conformance-turns ./turn-adapter.mjs [--json]";
+    else adapterPath = args.shift();
+  }
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--json") json = true;
     else if (args[i] === "--output" && outputDir === undefined) {
@@ -27,9 +31,9 @@ if (command === "demo") {
   } else {
     try {
       const { runTurnRecoveryDemo } = await import("./turn-demo.js");
-      const result = await runTurnRecoveryDemo({ outputDir,
+      const result = await runTurnRecoveryDemo({ outputDir, adapterPath,
         log: json ? () => {} : line => process.stdout.write(`${line}\n`) });
-      process.stdout.write(`TURN_RECOVERY_RESULT ${JSON.stringify(result)}\n`);
+      process.stdout.write(`${adapterPath ? "TURN_CONFORMANCE_RESULT" : "TURN_RECOVERY_RESULT"} ${JSON.stringify(result)}\n`);
     } catch (error) {
       process.stderr.write(`Recovery demo failed: ${error.message}\n`);
       process.exitCode = 1;
@@ -83,6 +87,6 @@ if (command === "demo") {
   const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   process.stdout.write(`${pkg.version}\n`);
 } else {
-  process.stderr.write("trust-graduation [demo|turn-demo [--output <new-directory>] [--json]|stagehand-demo|init-adapter [path]|conformance <adapter> [--json]|--version]\n");
+  process.stderr.write("trust-graduation [demo|turn-demo [--output <new-directory>] [--json]|conformance-turns <adapter> [--output <new-directory>] [--json]|stagehand-demo|init-adapter [path]|conformance <adapter> [--json]|--version]\n");
   process.exitCode = command === "--help" || command === "-h" ? 0 : 2;
 }

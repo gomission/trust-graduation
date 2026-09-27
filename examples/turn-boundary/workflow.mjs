@@ -163,7 +163,9 @@ export function createTurnWorkflow({ store, authenticateDecision, provider, look
     })) return get(requestId);
     const result = await gate(record).execute({ binding: record.binding, approval: record.decision.approval, action: record.action });
     if (!result.ok) {
-      return failure(requestId, result.reason, result.providerCalled ? "outcome_unknown" : "failed");
+      // The provider may have committed while its original response was still
+      // pending. Do not undo a newer reconciliation when that response fails.
+      return failure(requestId, result.reason, result.providerCalled ? "outcome_unknown" : "failed", record.revision + 1);
     }
     return reconcile(requestId);
   }

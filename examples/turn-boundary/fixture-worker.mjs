@@ -4,11 +4,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { pathToFileURL } from "node:url";
 import { canonicalJson, createApprovalGrant, digestObject } from "../../src/index.js";
 import { createFileTurnStore } from "./file-store.mjs";
 import { createTurnWorkflow } from "./workflow.mjs";
 
-const [root, command, mode = "normal"] = process.argv.slice(2);
+const [root, command, mode = "normal", adapterPath] = process.argv.slice(2);
 if (!root || !command) throw new Error("usage: fixture-worker.mjs WORKSPACE request|approve|deny|resume [MODE]");
 const requestId = "message-1";
 const fixedNow = new Date(mode === "expired" ? "2026-09-27T12:11:00Z" : "2026-09-27T12:00:00Z");
@@ -34,7 +35,9 @@ const store = {
     return backing.consume(identity);
   }
 };
-const workflow = createTurnWorkflow({
+const factory = adapterPath ? (await import(pathToFileURL(adapterPath).href)).createWorkflow : createTurnWorkflow;
+if (typeof factory !== "function") throw new Error("adapter must export createWorkflow(dependencies)");
+const workflow = await factory({
   store, now: () => fixedNow,
   authenticateDecision: async decision => {
     const { signature, ...body } = decision || {};
@@ -60,10 +63,13 @@ const workflow = createTurnWorkflow({
     return provider.get(record.binding.actionHash.slice(7));
   }
 });
+for (const method of ["request", "decide", "resume", "reconcile", "inspect"]) {
+  if (typeof workflow?.[method] !== "function") throw new Error(`workflow.${method} is required`);
+}
 
 let result;
 if (command === "request") {
-  result = workflow.request({
+  result = await workflow.request({
     requestId, policyId: mode === "changed-policy" ? "human-message-v2" : "human-message-v1",
     action: {
       actionClass: "email.send.external", workspace: "synthetic-workspace", principal: "fixture-human",
@@ -73,7 +79,7 @@ if (command === "request") {
   });
   if (mode === "pause-pending") await checkpoint("pending_persisted");
 } else if (command === "approve" || command === "deny") {
-  const record = workflow.inspect(requestId);
+  const record = await workflow.inspect(requestId);
   const decision = {
     requestId, actionHash: record.binding.actionHash, policyId: record.policyId,
     state: command === "approve" ? "approved" : "denied",

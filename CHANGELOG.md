@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0-beta.5 — 2026-09-27
+
+- Add durable approval turns, independent receipt readback, explicit denied and
+  unknown outcomes, and a runnable four-scenario SIGKILL recovery walkthrough.
+- Preserve a newer verified completion and receipt when an older provider
+  response subsequently fails; add a deterministic concurrency regression.
+- Expose `conformance-turns` for adapters implementing the reference workflow
+  contract, including a negative test for invented completion.
+- Include a separately installed official MCP SDK 2.1.0 stdio example with
+  client death after provider commit and recovery over a fresh connection.
+- Document test authority, synthetic effects, storage limits and integration
+  steps. The core keeps zero runtime dependencies.
+
 ## 0.2.0-beta.4 — 2026-09-27
 
 - Harden provider-gate handling of approval data across asynchronous checks.

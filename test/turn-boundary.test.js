@@ -235,3 +235,40 @@ test("an already persisted decision remains idempotent after its grant expires",
   assert.deepEqual(await workflow.decide({ requestId: "repeat", decision }), approved);
   assert.equal((await workflow.resume("repeat")).status, "failed");
 });
+
+test("a late provider failure cannot undo a concurrently reconciled completion", async t => {
+  const root = workspace(t);
+  const store = createFileTurnStore(root);
+  const now = () => new Date("2026-09-27T12:00:00Z");
+  let evidence, release, accepted, providerCalls = 0;
+  const providerAccepted = new Promise(resolve => { accepted = resolve; });
+  const workflow = createTurnWorkflow({
+    store, now, authenticateDecision: async () => true,
+    provider: async (input, { binding }) => {
+      providerCalls++;
+      evidence = { actionHash: binding.actionHash, inputHash: binding.inputHash,
+        result: { providerId: "accepted-before-response-loss" } };
+      accepted();
+      await new Promise(resolve => { release = resolve; });
+      throw new Error("response_lost_after_acceptance");
+    },
+    lookupProviderEvidence: async () => evidence
+  });
+  const record = workflow.request({ requestId: "late", policyId: "policy-v1", action: {
+    actionClass: "email.send.external", workspace: "test", target: "test@example.invalid", input: {}
+  } });
+  await workflow.decide({ requestId: "late", decision: {
+    requestId: "late", policyId: "policy-v1", actionHash: record.binding.actionHash, state: "approved",
+    approval: createApprovalGrant({ binding: record.binding, issuer: "test-authority",
+      grantId: "late-grant", issuedAt: now().toISOString() })
+  } });
+  const original = workflow.resume("late");
+  await providerAccepted;
+  assert.equal((await workflow.reconcile("late")).status, "completed");
+  release();
+  assert.equal((await original).status, "completed");
+  assert.equal(store.get("late").status, "completed");
+  assert.equal(store.readReceipt("late").outcome, "provider_confirmed");
+  assert.equal((await workflow.resume("late")).status, "completed");
+  assert.equal(providerCalls, 1);
+});

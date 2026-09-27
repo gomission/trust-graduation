@@ -43,11 +43,11 @@ production store, independent deployment, or market adoption.
 
 The [turn-boundary reference workflow](docs/turn-boundary-recovery.md) persists
 pending requests and authenticated decisions without keeping a connection open.
-Try the guided recovery walkthrough from this source checkout (Node.js 18+
+Try the guided recovery walkthrough (Node.js 18+
 on macOS or Linux; use WSL on Windows):
 
 ```bash
-npm run demo:turns
+npx -y @trust-graduation/core@0.2.0-beta.5 turn-demo
 ```
 
 It kills and restarts real workers, narrates four outcomes, and saves the host
@@ -56,11 +56,15 @@ new temporary directory. Success ends with `TURN_RECOVERY_RESULT` and
 `"ok":true`. The [copy-and-run instructions and expected output](docs/turn-boundary-recovery.md#run-the-walkthrough)
 also show how to keep evidence in a directory you choose.
 
-This walkthrough is a source candidate, not part of the published
-`0.2.0-beta.4` package. The fixture sends no messages and does not claim an
-external runtime integration. An unknown provider outcome remains explicitly
+The fixture sends no messages. An unknown provider outcome remains explicitly
 unresolved; it never triggers an automatic resend. Run the wider interruption
 matrix with `npm run test:turns`.
+
+Bring a compatible workflow to [the interruption runner](docs/turn-workflow-conformance.md)
+with `conformance-turns ./adapter.mjs`. A separate [official MCP SDK example](examples/mcp-recovery/README.md)
+runs the same four scenarios across a real stdio connection and a separate
+synthetic provider process. The [engineering note](docs/recovery-engineering-note.md)
+explains the late-response race this work uncovered.
 
 ## Fifteen-Minute Provider Integration
 
@@ -318,7 +322,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Core package status: `0.2.0-beta.4` (experimental beta candidate).
+Core package status: `0.2.0-beta.5` (experimental beta candidate).
 
 Portable protocol schema status: experimental v0.1 at `trustgraduation.org/spec/0.1/`.
 

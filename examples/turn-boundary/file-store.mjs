@@ -65,6 +65,13 @@ export function createFileTurnStore(root) {
     writeReceipt(id, receipt) {
       for (let attempt = 0; attempt < 32; attempt++) {
         const previous = read("receipts", id);
+        // A late failed response cannot erase independently confirmed evidence
+        // for the same execution. The next-revision commit below retries this
+        // check if a concurrent reconciliation wins publication first.
+        if (previous?.outcome === "provider_confirmed"
+          && receipt.outcome !== "provider_confirmed"
+          && previous.actionHash === receipt.actionHash
+          && previous.grantId === receipt.grantId) return true;
         if (commit("receipts", id, previous?.revision ?? -1, receipt)) return true;
       }
       throw new Error("receipt_store_contention");

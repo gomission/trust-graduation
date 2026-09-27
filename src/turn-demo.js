@@ -9,11 +9,11 @@ import { fileURLToPath } from "node:url";
 import { digestObject } from "./index.js";
 import { createFileTurnStore } from "../examples/turn-boundary/file-store.mjs";
 
-const worker = fileURLToPath(new URL("../examples/turn-boundary/fixture-worker.mjs", import.meta.url));
+const defaultWorker = fileURLToPath(new URL("../examples/turn-boundary/fixture-worker.mjs", import.meta.url));
 
-function run(root, command, mode = "normal", killAt = "") {
+function runWorker(worker, adapterPath, root, command, mode = "normal", killAt = "") {
   return new Promise((resolve, reject) => {
-    const child = fork(worker, [root, command, mode], { stdio: ["ignore", "ignore", "pipe", "ipc"] });
+    const child = fork(worker, [root, command, mode, adapterPath || ""], { stdio: ["ignore", "ignore", "pipe", "ipc"] });
     let result, reached;
     let stderr = "";
     let timedOut = false;
@@ -59,8 +59,11 @@ function verifyCompletion(root) {
   return { status: state.status, providerCalls, receiptVerified: true };
 }
 
-export async function runTurnRecoveryDemo({ outputDir, log = () => {} } = {}) {
+export async function runTurnRecoveryDemo({ outputDir, adapterPath, workerPath = defaultWorker, log = () => {} } = {}) {
   if (process.platform === "win32") throw new Error("turn-demo requires macOS or Linux with a local POSIX filesystem; on Windows use WSL.");
+  const adapter = adapterPath ? path.resolve(adapterPath) : undefined;
+  if (adapter) fs.accessSync(adapter, fs.constants.R_OK);
+  const run = (...args) => runWorker(workerPath, adapter, ...args);
   let root;
   if (outputDir !== undefined) {
     root = path.resolve(outputDir);
@@ -70,7 +73,8 @@ export async function runTurnRecoveryDemo({ outputDir, log = () => {} } = {}) {
       throw error;
     }
   } else root = fs.mkdtempSync(path.join(os.tmpdir(), "trust-graduation-recovery-"));
-  log("Synthetic provider and test approval authority. No external messages are sent.");
+  log(adapter ? "Testing an adapter with a synthetic provider and test authority. Only injected provider calls are measured."
+    : "Synthetic provider and test approval authority. No external messages are sent.");
   log(`Evidence directory: ${root}`);
   const scenarios = [];
 
@@ -126,8 +130,8 @@ export async function runTurnRecoveryDemo({ outputDir, log = () => {} } = {}) {
     reconciliationRequired: true, failed: unresolved.state.failed.map(entry => entry.reason), kills: [unknownKill] });
   log("4. Worker dies before provider acceptance -> outcome_unknown; no blind retry; provider calls: 0.");
 
-  const report = { protocol: "trust-graduation-turn-recovery-demo", version: 1, ok: true,
-    synthetic: true, externalActions: 0, evidenceDirectory: root, scenarios };
+  const report = { protocol: adapter ? "trust-graduation-turn-recovery-conformance" : "trust-graduation-turn-recovery-demo", version: 1, ok: true,
+    synthetic: true, externalActions: adapter ? null : 0, evidenceDirectory: root, ...(adapter ? { adapter } : {}), scenarios };
   // The report is an index. The separate host journal, provider ledger, and
   // receipt files remain available for inspection; it does not replace them.
   const reportPath = path.join(root, "result.json");
