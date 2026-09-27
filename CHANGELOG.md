@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0-beta.4 — 2026-09-27
+
+- Harden provider-gate handling of approval data across asynchronous checks.
+- Recheck approval validity at the execution boundary and consistently require
+  single-use consumption for approval-gated policies.
+- Preserve audit metrics while preventing zero-weight evidence from increasing
+  earned authority; existing small-edit graduation policy is unchanged.
+- Clarify that the incomplete Python and Go alpha ports support planning and
+  do not authorize gated or unknown effects.
+- Expand authorization, expiry, replay, and evidence regression coverage.
+- Add a private security-reporting contact and include security guidance in
+  the package.
+- Update the separately published Mission Schemas package to 0.1.1 with exact
+  request-payload commitment checks; schema identifiers are unchanged.
+
 ## 0.2.0-beta.3 — 2026-08-17
 
 - Hardened `createProviderGate()` so the canonical action is snapshotted before

@@ -1,6 +1,6 @@
 # Stagehand Provider Gate
 
-Status: experimental `@trust-graduation/core@0.2.0-beta.3` candidate; not
+Status: experimental `@trust-graduation/core@0.2.0-beta.4` candidate; not
 published and not included in `@trust-graduation/core@0.2.0-beta.2`
 
 This adapter governs one deterministic Browserbase Stagehand action immediately

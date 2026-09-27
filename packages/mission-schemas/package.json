@@ -1,6 +1,6 @@
 {
   "name": "@gomission/mission-schemas",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Protocol vocabulary, JSON Schema Draft 2020-12 definitions, canonical action-class taxonomy, deterministic canonicalization rules, and zero-dependency conformance CLI for the open Trust Graduation protocol.",
   "type": "module",
   "license": "Apache-2.0",
@@ -41,7 +41,9 @@
     "bin/",
     "fixtures/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "SECURITY.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs"

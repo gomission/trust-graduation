@@ -52,6 +52,9 @@ export interface EvidenceSummary {
   rollbacks: number;
   positive: number;
   negative: number;
+  /** Nonzero-weight positive-event counts used for graduation; raw counts remain audit metrics. */
+  graduationPositive?: number;
+  graduationApprovals?: number;
   weightedPositive: number;
   weightedNegative: number;
   decisions: number;

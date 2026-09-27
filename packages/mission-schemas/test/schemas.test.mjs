@@ -178,6 +178,8 @@ test("validateReceiptChain detects digest mismatches across the chain", () => {
   const receipt = { execution_id: "e1", grant_id: "g1", workspace_id: "w1", input_hash: "sha256:aaaa", digests: good };
   action.target = "t";
   const chainOk = { action, grant, decision, policy, payload, receipt };
+  // A positive receipt chain must commit the actual input, not a placeholder hash.
+  action.input_hash = grant.input_hash = receipt.input_hash = digestObject(payload);
   chainOk.receipt.digests = computeReceiptDigests(chainOk);
   const okResult = validateReceiptChain(chainOk);
   assert.equal(okResult.ok, true, JSON.stringify(okResult.errors));

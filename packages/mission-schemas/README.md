@@ -19,7 +19,7 @@ npm install @gomission/mission-schemas
 - `canonicalization.mjs` — `canonicalJson`, `digestObject`, `computeReceiptDigests`, `receiptSigningBytes`. Deterministic and stable.
 - `schemas/*.json` — JSON Schema Draft 2020-12 for every protocol object.
 - `validator.mjs` — minimal zero-dependency validator that supports the exact subset of Draft 2020-12 used by these schemas. Full validators (ajv etc.) work identically against the same schema files.
-- `conformance.mjs` — cross-object reference checks: digest chain, tenant integrity, signature-domain drift.
+- `conformance.mjs` — cross-object reference checks: digest chain, tenant integrity, and equality between the exact raw request payload and action/grant/receipt input commitments (plus decision v2). Provider result data remains separate from request input. Cryptographic signature verification and trusted-key selection must be supplied by the host.
 - `bin/mission-schemas-conform` — CLI with stable JSON output.
 - `fixtures/positive/` — one valid example per schema.
 - `fixtures/adversarial/` — one representative failure per rejection class (unknown field, wrong version, malformed digest, wrong algorithm, missing required field).

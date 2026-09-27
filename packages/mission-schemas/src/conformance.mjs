@@ -10,8 +10,8 @@
 //   - Does the receipt's policy digest match the recomputed policy digest?
 //   - Does the receipt's payload digest match the recomputed payload digest?
 //   - Do execution/grant/decision references share the same workspace and grant ids?
-//   - Does the trace_context carry non-empty ids when a trace was present?
-//   - Does the receipt's signature key_id match a live workspace key?
+//   - Does the raw payload match every declared exact-input commitment?
+// Signature verification and live key selection are host responsibilities.
 //
 // This module answers those questions with pure functions, no I/O.
 
@@ -41,7 +41,20 @@ export function validateReceiptChain(chain = {}) {
   const errors = [];
   const { action, grant, decision, policy, payload, receipt } = chain;
   if (!receipt) return { ok: false, errors: [{ path: "/receipt", keyword: "required", message: "receipt is required" }] };
+  // Missing payload is different from an explicitly approved JSON null.
+  if (!Object.prototype.hasOwnProperty.call(chain, "payload") || payload === undefined) {
+    errors.push({ path: "/payload", keyword: "required", message: "exact raw input payload is required" });
+  }
   const recomputed = computeReceiptDigests({ action, grant, decision, policy, payload });
+  for (const [name, source] of [["action", action], ["grant", grant], ["receipt", receipt]]) {
+    if (!source || source.input_hash !== recomputed.payload) {
+      errors.push({ path: `/${name}/input_hash`, keyword: "payload_commitment_mismatch", message: `${name}.input_hash does not match the exact raw input payload` });
+    }
+  }
+  // Decision v1 has no input commitment; v2 and any supplied commitment must agree.
+  if (decision && (decision.schema === "mission-decision/v2" || Object.prototype.hasOwnProperty.call(decision, "input_hash")) && decision.input_hash !== recomputed.payload) {
+    errors.push({ path: "/decision/input_hash", keyword: "payload_commitment_mismatch", message: "decision.input_hash does not match the exact raw input payload" });
+  }
   for (const key of ["action", "grant", "decision", "policy", "payload"]) {
     if (recomputed[key] !== receipt.digests?.[key]) {
       errors.push({ path: `/receipt/digests/${key}`, keyword: "digest_mismatch", message: `receipt.digests.${key} does not match recomputed digest from source` });

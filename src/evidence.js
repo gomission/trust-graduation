@@ -116,7 +116,7 @@ export function summarizeEvidence(evidence = [], actionClass = "") {
     };
   }
 
-  const summary = emptyEvidenceSummary(actionClass);
+  const summary = { ...emptyEvidenceSummary(actionClass), graduationPositive: 0, graduationApprovals: 0 };
   const sources = new Set();
   for (const entry of evidence) {
     const entryClass = actionClassOf(entry);
@@ -125,6 +125,8 @@ export function summarizeEvidence(evidence = [], actionClass = "") {
     const type = typeOf(entry);
     const editDistance = Number(entry.editDistance ?? entry.edit_distance ?? 0);
     const weight = evidenceWeight(entry);
+    const priorPositive = summary.positive;
+    const priorApprovals = summary.approvals;
     if (editDistance > summary.avgEditDistance) summary.avgEditDistance = editDistance;
     if (weight > 0) summary.weightedPositive += weight;
     if (weight < 0) summary.weightedNegative += Math.abs(weight);
@@ -161,6 +163,11 @@ export function summarizeEvidence(evidence = [], actionClass = "") {
     } else if (NEGATIVE_EVIDENCE_TYPES.has(type)) {
       summary.negative += 1;
     }
+    // Preserve legacy event semantics, but zero-weight evidence cannot earn authority.
+    if (weight !== 0) {
+      summary.graduationPositive += summary.positive - priorPositive;
+      summary.graduationApprovals += summary.approvals - priorApprovals;
+    }
   }
   summary.evidenceSources = [...sources].sort();
   summary.rejectionRate = summary.positive + summary.negative
@@ -170,9 +177,9 @@ export function summarizeEvidence(evidence = [], actionClass = "") {
 }
 
 export function tierFromEvidence(summary = {}) {
-  const positive = Number(summary.positive || 0);
+  const positive = Number(summary.graduationPositive ?? summary.positive ?? 0);
   const negative = Number(summary.negative || 0);
-  const approvals = Number(summary.approvals || 0);
+  const approvals = Number(summary.graduationApprovals ?? summary.approvals ?? 0);
   const trustIssues = Number(summary.trustIssues || summary.trust_issues || 0);
   const rejections = Number(summary.rejections || 0);
   const avgEditDistance = Number(summary.avgEditDistance ?? summary.avg_edit_distance ?? 0);

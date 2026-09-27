@@ -268,6 +268,7 @@ Mission's current implementation profile is documented in [docs/mission-referenc
 - Action class: the smallest portable unit of earned autonomy, such as `draft.response` or `email.send.external`.
 - Evidence ledger: real approvals, edits, rejections, executions, receipts, outcomes, trust issues, and rollbacks.
 - Provenance-weighted evidence: outcome quality can be multiplied by source reliability, for example receipt/principal evidence at 1.0, connector evidence at 0.3, and model-inferred evidence at 0.1.
+- Graduation counts exclude zero-weight positive events while raw audit counts are retained. Precomputed summary objects remain trusted host input; evidence authenticity, deduplication, and workspace scoping must be enforced by the host. Positive fractional weights are not converted into fractional event thresholds by this reference implementation.
 - Autonomy level: the current earned capability for an action class.
 - Approval packet: a portable bounded-review payload any product can render.
 - Decision: the protocol object that explains whether the requested action is allowed now, gated, or regressed.
@@ -294,13 +295,13 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Core package status: `0.2.0-beta.3` (experimental beta candidate).
+Core package status: `0.2.0-beta.4` (experimental beta candidate).
 
 Portable protocol schema status: experimental v0.1 at `trustgraduation.org/spec/0.1/`.
 
 JavaScript reference-runtime schema status: compatibility draft `schemas/v1/`.
 
-Mission Gate conformance status: `@gomission/mission-schemas` `0.1.0`, including `mission-decision/v2`, `mission-execution-receipt/v2`, `mission-outcome/v1`, signature envelopes, public-key manifests, and authority-interruption records.
+Mission Gate conformance status: `@gomission/mission-schemas` `0.1.1`, including `mission-decision/v2`, `mission-execution-receipt/v2`, `mission-outcome/v1`, signature envelopes, public-key manifests, and authority-interruption records.
 
 Schemas describe the draft shape. The package is the JavaScript reference implementation. The profile reaches stable `v1.0` only after outside implementations validate the object model and no breaking schema changes are required for a sustained period.
 

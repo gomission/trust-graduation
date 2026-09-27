@@ -71,22 +71,16 @@ func (tg TrustGraduation) CanExecute(req Request) Decision {
 	summary := tg.summarize(req.ActionClass)
 	tier := tier(summary)
 	level := level(tier)
-	approved := req.Approval["state"] == "approved" || req.Context["approvalState"] == "approved"
-	highRisk := policy.RiskClass == "high" || policy.RiskClass == "critical" || policy.ExternalSideEffects != "none"
+	// Caller flags are not authority; exact-action execution is unsupported by this alpha port.
+	highRisk := policy.RequiresApproval || policy.RiskClass == "high" || policy.RiskClass == "critical" || policy.ExternalSideEffects != "none"
 	base := Decision{Protocol: "trust-graduation", Version: "1.0", AutonomyLevel: level, Tier: tier, Policy: policy, Evidence: summary}
 
-	if highRisk && !approved {
+	if highRisk {
 		base.Allowed = false
 		base.NeedsApproval = true
 		base.Mode = "approval_required"
-		base.Reason = "Human approval required before this action can execute."
+		base.Reason = "This alpha port cannot execute approval-gated actions. Use the JavaScript provider gate with authenticated grants and an atomic store."
 		base.Packet = map[string]any{"protocol": "trust-graduation", "version": "1.0", "workspace": tg.Workspace, "actionClass": req.ActionClass, "approvalRequired": true}
-		return base
-	}
-	if highRisk && approved {
-		base.Allowed = true
-		base.Mode = "approved_once"
-		base.Reason = "Human approval permits this action once."
 		return base
 	}
 	if tier == "review" || level < policy.MinimumLevel {
@@ -108,11 +102,8 @@ func (tg TrustGraduation) policyFor(actionClass string) Policy {
 			return policy
 		}
 	}
-	high := strings.Contains(needle, "send") || strings.Contains(needle, "external") || strings.Contains(needle, "post")
-	if high {
-		return Policy{ActionClass: actionClass, Lane: "ask", RiskClass: "high", MinimumLevel: 1, RequiresApproval: true, ReceiptRequired: true, ExternalSideEffects: "external_write"}
-	}
-	return Policy{ActionClass: actionClass, Lane: "prepare", RiskClass: "medium", MinimumLevel: 1, ExternalSideEffects: "none"}
+	// Unknown classes must not gain authority from their spelling.
+	return Policy{ActionClass: actionClass, Lane: "ask", RiskClass: "high", MinimumLevel: 1, RequiresApproval: true, ReceiptRequired: true, ExternalSideEffects: "external_write"}
 }
 
 func (tg TrustGraduation) summarize(actionClass string) Summary {
@@ -173,4 +164,3 @@ func level(tier string) int {
 func normalize(value string) string {
 	return strings.ReplaceAll(strings.ToLower(strings.TrimSpace(value)), "_", ".")
 }
-

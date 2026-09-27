@@ -43,7 +43,8 @@ def _policy_for(action_class: str, policies: list[dict[str, Any]]) -> dict[str, 
     for policy in policies:
         if _normalize(policy.get("actionClass")) == normalized:
             return policy
-    high = any(token in normalized for token in ["send", "external", "post", "publish", "payment", "legal"])
+    # The alpha port cannot authorize unknown effects safely.
+    high = True
     return {
         "actionClass": action_class,
         "lane": "ask" if high else "prepare",
@@ -115,9 +116,9 @@ class TrustGraduation:
         evidence = _summarize(self.evidence, action_class)
         tier = _tier(evidence)
         level = _level(tier)
-        approval = request.get("approval") or {}
-        approved = approval.get("state") == "approved" or request.get("context", {}).get("approvalState") == "approved"
-        high_risk = policy["riskClass"] in ["high", "critical"] or policy["externalSideEffects"] != "none"
+        # Until this port implements authenticated exact-action grants and a
+        # shared atomic store, caller-supplied approval flags never authorize.
+        high_risk = policy.get("requiresApproval", False) or policy["riskClass"] in ["high", "critical"] or policy["externalSideEffects"] != "none"
 
         base = {
             "protocol": "trust-graduation",
@@ -127,13 +128,13 @@ class TrustGraduation:
             "policy": policy,
             "evidence": evidence,
         }
-        if high_risk and not approved:
+        if high_risk:
             return {
                 **base,
                 "allowed": False,
                 "needsApproval": True,
                 "mode": "approval_required",
-                "reason": "Human approval required before this action can execute.",
+                "reason": "This alpha port cannot execute approval-gated actions. Use the JavaScript provider gate with authenticated grants and an atomic store.",
                 "packet": {
                     "protocol": "trust-graduation",
                     "version": "1.0",
@@ -146,8 +147,6 @@ class TrustGraduation:
                     "evidence": evidence,
                 },
             }
-        if high_risk and approved:
-            return {**base, "allowed": True, "needsApproval": False, "mode": "approved_once", "reason": "Human approval permits this action once."}
         if tier == "review" or level < policy["minimumLevel"]:
             return {**base, "allowed": False, "needsApproval": True, "mode": "review_only", "reason": "Insufficient or regressed trust evidence."}
         return {**base, "allowed": True, "needsApproval": False, "mode": tier, "reason": "Action is inside the current trust boundary."}

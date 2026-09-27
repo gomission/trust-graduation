@@ -52,19 +52,22 @@ export function createProviderGate({
     const checkedAt = asDate(now(), "now");
     let snapshot;
     let actualBinding;
+    let approvalSnapshot;
     try {
       snapshot = snapshotAction(action);
-      actualBinding = bindExecutionAction(snapshot, {
+      // Own the authenticated grant across asynchronous checks and consumption.
+      approvalSnapshot = approval == null ? approval : snapshotAction(approval);
+      actualBinding = deepFreeze(bindExecutionAction(snapshot, {
         expiresAt: binding?.expiresAt || "",
         nonce: binding?.nonce || ""
-      });
+      }));
     } catch (error) {
       return denied("actual_action_invalid", { detail: safeErrorCode(error) });
     }
 
     const structural = validateApprovalGrant({
       binding: actualBinding,
-      approval,
+      approval: approvalSnapshot,
       now: checkedAt
     });
     if (!structural.ok) return denied(structural.reason, { binding: actualBinding });
@@ -72,7 +75,7 @@ export function createProviderGate({
     let issuerAuthentication;
     try {
       issuerAuthentication = await authenticateGrant(Object.freeze({
-        approval,
+        approval: approvalSnapshot,
         binding: actualBinding,
         action: snapshot
       }));
@@ -90,20 +93,26 @@ export function createProviderGate({
 
     const authorization = await consumeApprovalGrant({
       binding: actualBinding,
-      approval,
-      now: checkedAt,
+      approval: approvalSnapshot,
+      now: asDate(now(), "now"),
       store
     });
     if (!authorization.ok) {
       return denied(authorization.reason, { binding: actualBinding });
     }
 
+    // Slow issuer/store checks must not extend the approved execution window.
+    const atProvider = validateApprovalGrant({
+      binding: actualBinding, approval: approvalSnapshot, now: asDate(now(), "now")
+    });
+    if (!atProvider.ok) return denied(atProvider.reason, { binding: actualBinding });
+
     let providerResult;
     try {
       providerResult = await provider(snapshot.input, Object.freeze({
         action: snapshot,
         binding: actualBinding,
-        approval,
+        approval: approvalSnapshot,
         authorization
       }));
     } catch (error) {
@@ -111,7 +120,7 @@ export function createProviderGate({
         id: createId,
         now,
         binding: actualBinding,
-        approval,
+        approval: approvalSnapshot,
         outcome: "provider_outcome_unknown",
         externalActionExecuted: null,
         providerErrorCode: safeErrorCode(error)
@@ -139,7 +148,7 @@ export function createProviderGate({
         id: createId,
         now,
         binding: actualBinding,
-        approval,
+        approval: approvalSnapshot,
         outcome: "provider_confirmed_result_unlinked",
         externalActionExecuted: true
       });
@@ -161,7 +170,7 @@ export function createProviderGate({
       id: createId,
       now,
       binding: actualBinding,
-      approval,
+      approval: approvalSnapshot,
       outcome: "provider_confirmed",
       externalActionExecuted: true,
       providerResultHash

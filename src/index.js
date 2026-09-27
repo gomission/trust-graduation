@@ -30,6 +30,7 @@ export class TrustGraduation {
     const tier = tierFromEvidence(evidence);
     const autonomyLevel = levelFromTier(tier);
     const highRisk = policy.riskClass === "high" || policy.riskClass === "critical";
+    const approvalRequired = highRisk || policy.requiresApproval === true;
     const currentTime = this.now();
     const createdAt = currentTime.toISOString();
     const decisionId = `tgd_${createdAt.replace(/[^0-9]/g, "").slice(0, 14)}_${slug(actionClass)}`;
@@ -94,7 +95,7 @@ export class TrustGraduation {
       });
     }
 
-    if (highRisk && !explicitlyApproved) {
+    if (approvalRequired && !explicitlyApproved) {
       return decision({
         decisionId,
         createdAt,
@@ -134,7 +135,7 @@ export class TrustGraduation {
       });
     }
 
-    if (highRisk && explicitlyApproved) {
+    if (approvalRequired && explicitlyApproved) {
       return decision({
         decisionId,
         createdAt,
