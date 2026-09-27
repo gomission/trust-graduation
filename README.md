@@ -39,6 +39,22 @@ while changed input, an unchanged-grant replay, and a plain `approved` flag all
 fail closed. This is a process-local protocol proof, not evidence of a durable
 production store, independent deployment, or market adoption.
 
+### Approvals across disconnected turns
+
+The [turn-boundary reference workflow](docs/turn-boundary-recovery.md) persists
+pending requests and authenticated decisions without keeping a connection open.
+Its crash tests kill real worker processes and verify recovery, concurrent
+resume protection, explicit `failed[]` records, and receipt readback against a
+separate synthetic provider ledger:
+
+```bash
+npm run test:turns
+```
+
+Run this from a source checkout. The fixture sends no messages and does not
+claim integration with an external agent runtime. Unknown provider outcomes
+require reconciliation; they never trigger an automatic resend.
+
 ## Fifteen-Minute Provider Integration
 
 The beta now includes a provider-bound adapter contract rather than asking an
