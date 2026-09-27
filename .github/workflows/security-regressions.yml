@@ -22,3 +22,7 @@ jobs:
           npm test
           PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s packages/python -p 'test_*.py'
           cd packages/go && go test -count=1 ./...
+      - name: MCP stdio recovery integration
+        run: |
+          npm ci --prefix examples/mcp-recovery --ignore-scripts --no-audit --no-fund
+          npm run demo --prefix examples/mcp-recovery
