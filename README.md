@@ -43,17 +43,24 @@ production store, independent deployment, or market adoption.
 
 The [turn-boundary reference workflow](docs/turn-boundary-recovery.md) persists
 pending requests and authenticated decisions without keeping a connection open.
-Its crash tests kill real worker processes and verify recovery, concurrent
-resume protection, explicit `failed[]` records, and receipt readback against a
-separate synthetic provider ledger:
+Try the guided recovery walkthrough from this source checkout (Node.js 18+
+on macOS or Linux; use WSL on Windows):
 
 ```bash
-npm run test:turns
+npm run demo:turns
 ```
 
-Run this from a source checkout. The fixture sends no messages and does not
-claim integration with an external agent runtime. Unknown provider outcomes
-require reconciliation; they never trigger an automatic resend.
+It kills and restarts real workers, narrates four outcomes, and saves the host
+journal, separate synthetic provider ledger, receipts, and `result.json` in a
+new temporary directory. Success ends with `TURN_RECOVERY_RESULT` and
+`"ok":true`. The [copy-and-run instructions and expected output](docs/turn-boundary-recovery.md#run-the-walkthrough)
+also show how to keep evidence in a directory you choose.
+
+This walkthrough is a source candidate, not part of the published
+`0.2.0-beta.4` package. The fixture sends no messages and does not claim an
+external runtime integration. An unknown provider outcome remains explicitly
+unresolved; it never triggers an automatic resend. Run the wider interruption
+matrix with `npm run test:turns`.
 
 ## Fifteen-Minute Provider Integration
 

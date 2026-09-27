@@ -51,6 +51,7 @@
   "scripts": {
     "test": "node --test",
     "test:turns": "node --test test/turn-boundary.test.js",
+    "demo:turns": "node src/cli.js turn-demo",
     "test:schemas": "npm test --prefix packages/mission-schemas",
     "test:all": "npm test && npm run test:schemas",
     "example": "node examples/minimal.js",

@@ -6,7 +6,72 @@ It composes the existing `createProviderGate` with persisted workflow state.
 It is an executable single-host example, not a completed browser-use integration
 or a guarantee of exactly-once delivery by an external service.
 
-## Run the proof
+## Run the walkthrough
+
+Requirements: Git, Node.js 18+ and a local POSIX filesystem (macOS or Linux;
+use WSL on Windows). No npm install, account, API key, model, or service is
+needed. This is a source candidate in [PR #1](https://github.com/gomission/trust-graduation/pull/1),
+not included in the published `0.2.0-beta.4` npm package.
+
+From a new directory:
+
+```bash
+git clone --branch codex/approval-turn-boundary --single-branch https://github.com/gomission/trust-graduation.git trust-graduation-recovery
+cd trust-graduation-recovery
+npm run demo:turns -- --output ./recovery-proof
+```
+
+If you already have this branch checked out, run only the last command. The
+output directory must not exist; choose a new name for another run. Omit
+`--output` to get a fresh temporary directory automatically. The directory and
+all evidence remain on disk after the program exits.
+
+Expect these four results, usually within a few seconds on a local machine:
+
+```text
+1. Request + approval survive SIGKILL -> completed; replay keeps provider calls at 1.
+2. Provider accepts, worker dies before receipt -> recovered receipt verified; provider calls stay at 1.
+3. Denial survives restart -> denied, failed[] contains human_denied; provider calls: 0.
+4. Worker dies before provider acceptance -> outcome_unknown; no blind retry; provider calls: 0.
+```
+
+The final `TURN_RECOVERY_RESULT` line contains `"ok":true` only after all four
+scenarios have been checked. `outcome_unknown` in scenario four is the expected
+result: the host cannot conclude the external outcome from its execution claim
+alone. The demo observes zero fixture-provider calls but does not teach the
+workflow to interpret missing evidence as permission to retry.
+
+For machine-readable output only:
+
+```bash
+node src/cli.js turn-demo --json
+```
+
+### Inspect the evidence
+
+```bash
+cat recovery-proof/result.json
+ls recovery-proof/reconciled/host/receipts/message-1/
+ls recovery-proof/reconciled/provider/calls/
+ls recovery-proof/denied/host/requests/message-1/
+```
+
+Each scenario (`resumed`, `reconciled`, `denied`, `unknown`) has its own host
+journal and provider directory. The highest numbered JSON revision in a journal
+directory is its current record. In `reconciled`, compare the receipt's
+`providerResultHash` with the provider result under `provider/requests/`;
+there is exactly one file under `provider/calls/` even after replay. In `denied`,
+the latest request revision contains `failed[]` with `human_denied`.
+
+`result.json` is an index of verified observations, not a replacement for those
+separate records. Do not use its `ok` flag to authorize any real action.
+
+The walkthrough uses a fixed clock and a public synthetic approval signing key
+for reproducibility. It does not authenticate a real human. Keep these fixtures
+out of production; integrate your own authenticated decision channel and
+provider lookup using the contract below.
+
+## Run the full interruption matrix
 
 From this source checkout, with Node.js 18+ on a local POSIX filesystem:
 

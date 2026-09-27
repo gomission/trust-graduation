@@ -13,6 +13,15 @@ replay, and a racing duplicate cannot call that provider.
 
 Requirements: Node.js 20 or newer and an existing JavaScript project.
 
+For a standalone trial, start a new project first so npm installs into that
+directory rather than an enclosing project:
+
+```bash
+mkdir mission-gate-trial
+cd mission-gate-trial
+npm init -y
+```
+
 ```bash
 npm install @trust-graduation/core@beta
 npx trust-graduation init-adapter
@@ -20,6 +29,14 @@ npx trust-graduation init-adapter
 
 The second command creates `mission-gate-adapter.mjs` and refuses to overwrite
 an existing file.
+
+You can immediately run `npx trust-graduation conformance ./mission-gate-adapter.mjs --json`
+to verify the scaffold with synthetic dependencies. Expect `CONFORMANCE_RESULT`
+with `"ok":true`, nine passing checks, and two result-linked receipts. Continue
+below to replace those test dependencies with your application's real boundary.
+
+For a separate process-restart walkthrough, see
+[approval and receipt recovery across turns](turn-boundary-recovery.md).
 
 ## Minute 2–7: name the exact provider input
 
