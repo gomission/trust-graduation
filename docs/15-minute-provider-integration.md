@@ -179,3 +179,7 @@ input through `providerActionFromMcpBinding()`, rejects mutation, executes the
 unchanged action once through `createProviderGate()`, rejects replay, and writes
 one result-linked receipt. It uses process-local test dependencies and remains
 a package-compatibility proof rather than an external integration.
+
+## Asynchronous boundary contract
+
+The gate owns immutable JSON snapshots of the action and grant across authentication and store waits. Provider callbacks must not mutate these objects. Caller edits after execution begins cannot change the reviewed snapshot; submit a new action and grant for changed intent. Expiry is checked again after each awaited authorization stage. If the store has consumed a grant before expiry is detected, no provider is called and the grant stays spent. These local dispatch checks do not impose a deadline inside a remote provider or prove exactly-once effects.

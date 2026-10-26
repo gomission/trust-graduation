@@ -322,7 +322,7 @@ Future hosted federation or enterprise support can issue stronger tokens without
 
 ## Status
 
-Core package status: `0.2.0-beta.5` (experimental beta candidate).
+Core package status: `0.2.0-beta.6` (experimental beta candidate).
 
 Portable protocol schema status: experimental v0.1 at `trustgraduation.org/spec/0.1/`.
 

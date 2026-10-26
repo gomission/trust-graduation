@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0-beta.6 — 2026-10-26
+
+- Add eight deterministic provider-gate regression tests for expiry across asynchronous authentication and consumption, immutable input/grant snapshots, spent-grant retention, pre-execution mutation and replay.
+- Reconfirm the existing beta.5 protections; no runtime authorization or recovery behavior changes.
+- Clarify the immutable JSON provider callback contract and the spent-grant behavior when expiry occurs before dispatch.
+
 ## 0.2.0-beta.5 — 2026-09-27
 
 - Add durable approval turns, independent receipt readback, explicit denied and
